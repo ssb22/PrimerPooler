@@ -68,7 +68,12 @@ void getAns(const char *qu, char *buf,size_t size) {
       } continue;
     }
     buf[l]=0;
-    if(!strcmp(buf,"tell me a joke")) puts("This program is protected by the GPL, so don't sue me, and DEFINITELY don't\nsend me your lab's latest radioactive toxic pathogen if you can't get it to\nwork.  Liability lawsuits can be bad, but pathology labs are scaaaaary.");
+    if(!strcmp(buf,"tell me a joke"))
+#if defined(_WIN64) || defined(_WIN32)
+ puts("What, even though your lab is afflicted by the Microsoft endemic?\nWindows programs aren't supposed to contain jokes. Try another type of computer.");
+#else
+ puts("This program is protected by the GPL, so don't sue me, and DEFINITELY don't\nsend me your lab's latest radioactive toxic pathogen if you can't get it to\nwork.  Liability lawsuits can be bad, but pathology labs are scaaaaary.");
+#endif
     else if(*buf) { /* just check it's all ASCII */
       char *p;
       for(p=buf; !(*p&0x80); p++)
