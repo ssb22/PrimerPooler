@@ -335,6 +335,7 @@ static float getKelvin0(const char *qu) {
     if (!tried_F && getYN("Seriously, Fahrenheit? (y/n): ")) return F_to_kelvin(r);
     if (!tried_K && getYN("Kelvin?? (y/n): ")) return r;
     if (!tried_R && getYN("Rankine?? (y/n): ")) return R_to_kelvin(r);
+    if(getYN("Randall Munroe's joke 'Felsius' unit??? (y/n): ")) return E_to_kelvin(r);
     puts("I give up.  You'll have to pick a unit that I know.");
   }
 }

@@ -15,6 +15,7 @@
 static inline float C_to_kelvin(float C) { return C+273.15; }
 static inline float F_to_kelvin(float F) { return (F+459.67)*5.0/9.0; }
 static inline float R_to_kelvin(float R) { return R*5.0/9.0; }
+static inline float E_to_kelvin(float E) { return C_to_kelvin((E-16.0)*5.0/7.0); }
 static float* deltaG_table(float K,float mg_conc_mM,float monovalent_cation_conc_mM,float dNTP_conc_mM) {
   // MPprimer has monovalent_cation_conc_mM default 50, others 0
   // Versions prior to 1.17 incorrectly called these _nM instead of _mM (unit, you nit :-) )
