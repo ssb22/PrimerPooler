@@ -30,9 +30,14 @@ static inline int _XS_randr(RandState *s) {
      (limited to 6.4Gb/sec shared between all cores) */
   RandState x = *s; x^=x>>12; x^=x<<25; x^=x>>27; *s=x;
   #if XorShift_no_star
-  return x & 0x7FFFFFFF; /* TODO: are low bits or high bits better? */
+  return x & 0x7FFFFFFF; /* as per versions before 1.41 (high bits might have been better than low bits though) */
   #else
-  return ((x * 2685821657736338717LL) >> 32) & 0x7FFFFFFF;
+  return (x * 2685821657736338717LL) >> 33;
+  /* (RandState is unsigned, so >> will be a logical, not
+     arithmetic, right shift, so won't fill with 1's, but
+     if int is 32-bit we'd better make sure the result
+     fits within 0x7FFFFFFF, so shift 33 bits to save
+     having to AND it off at the end) */
   #endif
 }
 
