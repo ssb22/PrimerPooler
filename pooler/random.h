@@ -32,7 +32,7 @@ static inline int _XS_randr(RandState *s) {
   #if XorShift_no_star
   return x & 0x7FFFFFFF; /* TODO: are low bits or high bits better? */
   #else
-  return (x * 2685821657736338717LL) >> 32;
+  return ((x * 2685821657736338717LL) >> 32) & 0x7FFFFFFF;
   #endif
 }
 
