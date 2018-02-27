@@ -42,11 +42,13 @@ static inline int _XS_randr(RandState *s) {
 }
 
 static RandState _RandState;
+/* (we assume srand will be called with non-0 argument) */
+
 static inline int _XS_rand() {
   return _XS_randr(&_RandState);
 }
 static inline void _XS_srand(unsigned seed) {
-  _RandState=seed;
+  _RandState = seed;
 }
 
 #ifdef rand
