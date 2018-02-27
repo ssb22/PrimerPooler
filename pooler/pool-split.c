@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.4 (c) 2016-17 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.41 (c) 2016-18 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -349,14 +349,14 @@ enum { s_KeepGoing = 0, s_ccPressed, s_tooManyIters };
 static volatile int stop_state;
 static void intHandler(int s) { stop_state = s_ccPressed; }
 
-static void randomise_pools(int np,const int *primerMove_depends_on,const int *scores,int seedless,int nPools,int *pools,ULL *bContrib,int *poolCounts,int maxCount) {
+static void randomise_pools(int np,const int *primerMove_depends_on,const int *scores,int nPools,int *pools,ULL *bContrib,int *poolCounts,int maxCount) {
   /* initialise to random distribution of pools, but note
      primerMove_depends_on and maxCount when doing this.
      Also initialise bContrib.  */
   int i; memset(poolCounts,0,nPools*sizeof(int));
   for(i=0; i<np; i++)
     if(primerMove_depends_on[i] == -1) {
-      int pool = ThreadRand(seedless) % nPools;
+      int pool = ThreadRand() % nPools;
       while(maxCount && poolCounts[pool]==maxCount) {
         pool++; /* not very random but it'll do for now */
         if(pool==nPools) pool=0;
@@ -388,7 +388,7 @@ typedef bit128 ThreadMask;
 typedef ULL ThreadMask;
 #endif
 
-static void poolsplit_thread(const int* shared_moves,AllPrimers ap,int nPools,int numMoves,const int* primerMove_depends_on,const int* scores,int seedless,time_t limitTime,int *bestPools,const float* table, int* bestPools_init_yet,ULL* gBadLast,long *totalIterations,time_t *lastOutputTime,int *overlaps,int* just_printed_counts,ThreadMask* threads_needing_to_reset_iter,int maxCount) {
+static void poolsplit_thread(const int* shared_moves,AllPrimers ap,int nPools,int numMoves,const int* primerMove_depends_on,const int* scores,time_t limitTime,int *bestPools,const float* table, int* bestPools_init_yet,ULL* gBadLast,long *totalIterations,time_t *lastOutputTime,int *overlaps,int* just_printed_counts,ThreadMask* threads_needing_to_reset_iter,int maxCount) {
   /* This is the inner part of split_into_pools.
      Multiple instances may be called in parallel. */
   int iter = 0, willContinue=1;
@@ -420,7 +420,7 @@ static void poolsplit_thread(const int* shared_moves,AllPrimers ap,int nPools,in
   int max_iterations = 10000000 /* TODO: customise? profile? (but low priority as we have an interrupt mechanism) */
     / (omp_get_num_threads() > 10 ? 10 : omp_get_num_threads()); /* TODO: customise this "10" as well? (it's maxMoves / minMoves) */
   while(willContinue) {
-    randomise_pools(ap.np,primerMove_depends_on,scores,seedless,nPools,pools,bContrib,poolCounts,maxCount);
+    randomise_pools(ap.np,primerMove_depends_on,scores,nPools,pools,bContrib,poolCounts,maxCount);
     for(; ; iter++) {
       #if USE_QSORT
       #if PARALLELIZE_POOLSPLIT && defined(_OPENMP)
@@ -493,9 +493,9 @@ static void poolsplit_thread(const int* shared_moves,AllPrimers ap,int nPools,in
         if(!willContinue) break;
         if(keep) {
           /* already found a good local maxima, so just take a few random steps away from it... */
-          int randomMoves = 5+ThreadRand(seedless)%5, i;
+          int randomMoves = 5+ThreadRand()%5, i;
           for(i=0; i<randomMoves; i++) {
-            int moveToMake=ThreadRand(seedless)%numMoves;
+            int moveToMake=ThreadRand()%numMoves;
             if(maxCount) while(poolCounts[poolOfMove(moves[moveToMake],nPools,pools)]==maxCount) if(++moveToMake==numMoves) moveToMake=0;
             make_a_move(moves[moveToMake],ap.np,scores,primerMove_depends_on,nPools,pools,bContrib,poolCounts,maxCount);
           } continue; /* don't do the additional make_a_move below (we'd have to repeat the maxCount condition) */
@@ -507,7 +507,7 @@ static void poolsplit_thread(const int* shared_moves,AllPrimers ap,int nPools,in
       }
       #if USE_QSORT
       int i = 0;
-      while(!(ThreadRand(seedless)%5) && i<numMoves-1 && valueOfMove(moves[i+1],nPools,pools,bContrib,poolCounts,maxCount)) ++i; /* sometimes don't pick the best one, just in case (TODO: can we write code to "get the top N items" w/out a complete sort?) */
+      while(!(ThreadRand()%5) && i<numMoves-1 && valueOfMove(moves[i+1],nPools,pools,bContrib,poolCounts,maxCount)) ++i; /* sometimes don't pick the best one, just in case (TODO: can we write code to "get the top N items" w/out a complete sort?) */
       bestMove = moves[i];
       #endif
       make_a_move(bestMove,ap.np,scores,primerMove_depends_on,nPools,pools,bContrib,poolCounts,maxCount);
@@ -563,7 +563,7 @@ int* split_into_pools(AllPrimers ap,int nPools,int timeLimit,PS_cache cache,int 
   #if PARALLELIZE_POOLSPLIT && defined(_OPENMP)
   #pragma omp parallel
   #endif
-  poolsplit_thread(shared_moves,ap,nPools,numMoves,primerMove_depends_on,scores,seedless,limitTime,bestPools,table, &bestPools_init_yet,&gBadLast,&totalIterations,&lastOutputTime,&overlaps,&just_printed_counts,&threads_needing_to_reset_iter,maxCount);
+  poolsplit_thread(shared_moves,ap,nPools,numMoves,primerMove_depends_on,scores,limitTime,bestPools,table, &bestPools_init_yet,&gBadLast,&totalIterations,&lastOutputTime,&overlaps,&just_printed_counts,&threads_needing_to_reset_iter,maxCount);
   signal(SIGINT, SIG_DFL);
   if(!just_printed_counts) {
     fputs("... looks like this is the best I can do:\n",stderr);
@@ -597,7 +597,7 @@ int suggest_num_pools(AllPrimers ap,PS_cache cache,const float *table) {
   int *pools = malloc(ap.np*sizeof(int));
   if(memFail(bContrib,poolCounts,pools,_memFail))
     return 0;
-  randomise_pools(ap.np,primerMove_depends_on,scores,0,nPools,pools,bContrib,poolCounts,1); /* puts 1 set in each pool */
+  randomise_pools(ap.np,primerMove_depends_on,scores,nPools,pools,bContrib,poolCounts,1); /* puts 1 set in each pool */
   int suggest_nPools = 1;
   int primer; for (primer=0; primer<ap.np; primer++) if (primerMove_depends_on[primer]==-1) {
       int destPool; for (destPool=0; destPool < suggest_nPools; destPool++) if(maxScoreOfBadness(bContrib[primerAndPool_to_contribOffset(primer,destPool,nPools)]) <= threshold) break; /* find first pool it will 'fit' in */

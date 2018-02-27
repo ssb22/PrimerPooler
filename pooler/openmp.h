@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.4 (c) 2016-17 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.41 (c) 2016-18 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -30,9 +30,9 @@ static inline void* wrapped_memcpy(void *a,const void *b,size_t n) {
 }
 
 #include "random.h"
-static inline int ThreadRand(int seedless) {
+static inline int ThreadRand() {
   int tNum = omp_get_thread_num(); /* this might not be unique if ThreadRand is called from inside NESTED parallelism, but we don't do that */
-  if(!tNum) return Rand(seedless);
+  if(!tNum) return rand();
   static RandState *states = NULL;
   if (!states) {
     #ifdef _OPENMP
@@ -58,12 +58,11 @@ static inline int ThreadRand(int seedless) {
       int nStates = omp_get_num_threads()-1;
       states = malloc(sizeof(RandState)*nStates);
       if(states) {
-        int r = Rand(seedless), i;
-        for(i=0; i<nStates; i++)
-          states[i] = RSInit(r++);
+        int r = rand(), i;
+        for(i=0; i<nStates; i++) states[i] = r++;
       }
     }
-    if(!states) /* aaaargh! */ return Rand(seedless);
-  } return portable_rand_r(states+(tNum-1));
+    if(!states) /* aaaargh! */ return rand();
+  } return rand_r(states+(tNum-1));
 }
 #endif
