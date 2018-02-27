@@ -12,12 +12,12 @@
 */
 /* Random number generator types: */
 #define rt_System 0
-#define rt_TinyMT 1
+#define rt_TinyMT 1 /* requires library */
 #define rt_XorShift 2
 /* (these are listed in expected slow-to-fast order) */
 
 #define RNG_Type rt_XorShift /* the type of RNG to use */
-#define XorShift_is_Star 0
+#define XorShift_is_Star 0 /* 1 to improve at the expense of some cycles */
 
 #if RNG_Type == rt_TinyMT
 #include "tinymt32.h"
@@ -38,9 +38,10 @@ static inline int _XS_randr(RandState *s) {
      all cores/threads; Xorshift at 2GHz 4-core =80Gb/s)*/
   RandState x = *s; x^=x>>12; x^=x<<25; x^=x>>27; *s=x;
   #if XorShift_is_Star
-  x *= 2685821657736338717LL;
+  return (x * 2685821657736338717LL) >> 32; /* "XorShift* 64/32" */
+  #else
+  return x & 0x7FFFFFFF; /* TODO: are low bits or high bits better? */
   #endif
-  return x & 0x7FFFFFFF;
 }
 static inline int _XS_rand() { return _XS_randr(&_RandState); } static inline void _XS_srand(unsigned seed) { _RandState=seed; }
 #define rand _XS_rand
@@ -51,7 +52,7 @@ static inline int _XS_rand() { return _XS_randr(&_RandState); } static inline vo
 typedef unsigned long RandState;
 #ifdef BSD
 /* BSD has a bad old rand()/srand() implementation; use
-   random()/srandom() instead (which is not standard C) */
+   the POSIX standard's random()/srandom() instead */
 #define rand random
 #define srand srandom
 #endif
