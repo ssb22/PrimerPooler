@@ -44,27 +44,46 @@ void getAns(const char *qu, char *buf,size_t size) {
         /* Probably we were launched by a graphical
            desktop that didn't give us a terminal. */
         puts("Early EOF on stdin: assuming a launcher problem.\nTrying to run argv[0] in a terminal.");
-        /* TODO: lxterminal (and check the others) will
-           get stuck if this is run with a space in any
-           part of argv0; you have to use
-           -e /bin/bash -c argv0_with_space_changed_to_*
-           and that'll work only if there's no other dir
-           that has something else instead of the space.
-           Users migrating to GNU/Linux from Windows are
-           especially prone to put binary files into
-           directories with spaces in the 'folder names'.
-           Could do a chdir first and run it from ./ but
-           that would change the behaviour of which
-           default directory is used for I/O.  Could do
-           so only if space or non shell-safe chars found.
-         */
-        static char* programs[]={
-            "/usr/bin/lxterminal","/usr/bin/rxvt",
-            "/usr/bin/xterm",
-            "/usr/bin/gnome-terminal",NULL};
-        int i;
-        for(i=0; programs[i]; i++)
-          execl(programs[i],programs[i],"-e",argv0,NULL);
+        /* 1. Try to run in lxterminal.  Care is needed
+           if any part of argv0 contains a space etc, as
+           lxterminal will split on space when we don't
+           want it to.  This workaround uses multiple
+           levels of quoting, unless argv0 is simple so as
+           not to require it. */
+        static const char *okChars="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-./=";
+        if(!argv0[strspn(argv0,okChars)])
+          execl("/usr/bin/lxterminal","/usr/bin/lxterminal","-e",argv0,NULL);
+        else {
+          char *buf=malloc(strlen(argv0)*4+12);
+          if(buf) {
+            memcpy(buf,"'$'\"'\"'",6);
+            int i,w=7; for(i=0; argv0[i]; i++) {
+              if(strchr(okChars,argv0[i]))
+                buf[w++]=argv0[i];
+              else w += sprintf(buf+w,"\\x%02x",argv0[i]);
+            }
+            strcpy(buf+w,"'\"'\"");
+            execl("/usr/bin/lxterminal",
+                  "/usr/bin/lxterminal","-e",
+                  "/bin/bash","-c",buf,NULL);
+            free(buf);
+          }
+        }
+        /* 2. Try gnome-terminal.  This doesn't need
+           quoting, as long as we use its -x not its -e */
+        execl("/usr/bin/gnome-terminal",
+              "/usr/bin/gnome-terminal","-x",
+              argv0,NULL);
+        /* 3. Try rxvt and xterm.  These programs don't
+           need us to do the above complex quoting.
+           (Weren't put first because lxterminal and
+           gnome-terminal is more likely to be configured
+           with the user's preferred fonts etc.)
+        */
+        execl("/usr/bin/rxvt","/usr/bin/rxvt","-e",
+              argv0,NULL);
+        execl("/usr/bin/xterm","/usr/bin/xterm","-e",
+              argv0,NULL);
         puts("... failed; bailing out.");
       }
 #endif
