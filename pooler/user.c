@@ -44,6 +44,20 @@ void getAns(const char *qu, char *buf,size_t size) {
         /* Probably we were launched by a graphical
            desktop that didn't give us a terminal. */
         puts("Early EOF on stdin: assuming a launcher problem.\nTrying to run argv[0] in a terminal.");
+        /* TODO: lxterminal (and check the others) will
+           get stuck if this is run with a space in any
+           part of argv0; you have to use
+           -e /bin/bash -c argv0_with_space_changed_to_*
+           and that'll work only if there's no other dir
+           that has something else instead of the space.
+           Users migrating to GNU/Linux from Windows are
+           especially prone to put binary files into
+           directories with spaces in the 'folder names'.
+           Could do a chdir first and run it from ./ but
+           that would change the behaviour of which
+           default directory is used for I/O.  Could do
+           so only if space or non shell-safe chars found.
+         */
         static char* programs[]={
             "/usr/bin/lxterminal","/usr/bin/rxvt",
             "/usr/bin/xterm",
