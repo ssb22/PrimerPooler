@@ -99,4 +99,5 @@ publish: mac-portable test-other
 	mv pooler0 pooler # overwriting Linux version
 	rm -f pooler.zip ; zip -9 pooler.zip pooler
 	make upx pooler.tgz
-	scp pooler.zip pooler.exe pooler64.exe pooler.tgz linux.ds.cam.ac.uk:homepage/pooler/
+	scp pooler.zip pooler.exe pooler64.exe pooler.tgz ds:homepage/pooler/
+	ssh ds homepage/update

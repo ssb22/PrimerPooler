@@ -597,7 +597,7 @@ int suggest_num_pools(AllPrimers ap,PS_cache cache,const float *table) {
   int *pools = malloc(ap.np*sizeof(int));
   if(memFail(bContrib,poolCounts,pools,_memFail))
     return 0;
-  randomise_pools(ap.np,primerMove_depends_on,scores,nPools,pools,bContrib,poolCounts,1); /* puts 1 set in each pool */
+  randomise_pools(ap.np,primerMove_depends_on,scores,nPools,pools,bContrib,poolCounts,1); /* puts 0 or 1 set in each pool */
   int suggest_nPools = 1;
   int primer; for (primer=0; primer<ap.np; primer++) if (primerMove_depends_on[primer]==-1) {
       int destPool; for (destPool=0; destPool < suggest_nPools; destPool++) if(maxScoreOfBadness(bContrib[primerAndPool_to_contribOffset(primer,destPool,nPools)]) <= threshold) break; /* find first pool it will 'fit' in */
