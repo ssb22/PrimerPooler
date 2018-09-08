@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.41 (c) 2016-18 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.42 (c) 2016-18 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -589,7 +589,7 @@ int suggest_num_pools(AllPrimers ap,PS_cache cache,const float *table) {
   /* Apply a simple threshold-based allocation just for
      suggesting a number of pools */
   int threshold = table ? 14 : 7; /* dG -7 or score 7.  TODO: customise?  but this function is for when the user is not sure, so perhaps we'd best hard-code the threshold */
-  int nPools = ap.np/2;
+  int nPools = ap.np; /* worst case is none of the primers are paired (unpaired primers could hang randomise_pools before v1.42 because this line said ap.np/2) */
   int *scores = cache.scores; if(!scores) return 0;
   int *primerMove_depends_on = cache.primerMove_depends_on;
   ULL *bContrib = malloc(ap.np*nPools*sizeof(ULL));
