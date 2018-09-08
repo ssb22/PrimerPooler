@@ -357,9 +357,14 @@ static void randomise_pools(int np,const int *primerMove_depends_on,const int *s
   for(i=0; i<np; i++)
     if(primerMove_depends_on[i] == -1) {
       int pool = ThreadRand() % nPools;
+      int origPool = pool;
       while(maxCount && poolCounts[pool]==maxCount) {
         pool++; /* not very random but it'll do for now */
         if(pool==nPools) pool=0;
+        if(pool==origPool) {
+          fprintf(stderr, "randomise_pools ERROR: maxCount too small, can't fit\n");
+          abort();
+        }
       } pools[i]=pool; poolCounts[pool]++;
     }
   for(i=0; i<np; i++)
