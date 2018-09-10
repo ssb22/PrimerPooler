@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.42 (c) 2016-18 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.43 (c) 2016-18 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -274,6 +274,11 @@ static int* merge_scores_of_stuckTogether_primers(AllPrimers ap,int *scores) {
   int *primerMove_depends_on=malloc(ap.np*sizeof(int));
   if(!primerMove_depends_on) return NULL;
   memset(primerMove_depends_on,0xFF,ap.np*sizeof(int));
+  char *pairedOK=malloc(ap.np);
+  if(!pairedOK) {
+    free(primerMove_depends_on); return NULL;
+  }
+  memset(pairedOK,0,ap.np);
   int doneMerge = 0;
   for(i=0; i<ap.np; i++) for(j=i; j<ap.np; j++) {
       if(i!=j && primerMove_depends_on[i]==-1 && primerMove_depends_on[j]==-1 && should_stick_together(ap,i,j)) {
@@ -300,16 +305,19 @@ static int* merge_scores_of_stuckTogether_primers(AllPrimers ap,int *scores) {
           updateMax(Sip++,*kp); *kp++=0;
         }
         primerMove_depends_on[j] = i;
-        doneMerge = 1;
+        doneMerge = pairedOK[i] = pairedOK[j] = 1;
       }
       p++;
     }
-  if(!doneMerge) {
-    /* same check as in amplicons.c (see comment there)
-       in case that step was missed */
+  if(doneMerge) {
+    /* just check for lone primers, usually a bad sign */
+    for(i=0; i<ap.np; i++) if(!pairedOK[i]) fprintf(stderr,"Warning: ungrouped primer %s\n",ap.names[i]);
+  } else {
+    /* same message as in amplicons.c (see comment there)
+       in case overlap-check was missed */
     fputs("WARNING: No primers are paired!\nPlease end your forward primers with -F\nand your reverse primers with -R or -B as instructed\n",stderr);
   }
-  return primerMove_depends_on;
+  free(pairedOK); return primerMove_depends_on;
 }
 
 static void saturate_scores_of_overlapping_primers(int *scores,const char *overlappingAmplicons,const int *primerNoToAmpliconNo,int nAmplicons,int np) {
