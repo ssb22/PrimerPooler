@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.43 (c) 2016-18 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.5 (c) 2016-18 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -480,7 +480,15 @@ int main(int argc, char *argv[]) {
     if(getYN("Would you like to run interactively? (y/n): ")) {
       signal(SIGABRT, assertHandler);
       do {
-        puts("Please enter the name of the primers file to read.\nI'm expecting a text file in multiple-sequence FASTA format;\nit is allowed to use degenerate bases.\nNames of amplicons' primers should end with F or R, and otherwise match.\n(Optionally include Taq probes etc ending with P/Q/etc.\nAll names differing in only the last letter will be kept in the same pool.)\nOptionally include tags to apply to all primers: >tagF and >tagR\n(you can change these mid-file if you want to vary your tags)"); // tags are applied based on their last letter (tagN)
+        puts("Please enter the name of the primers file to read.\n"
+             "I'm expecting a text file in multiple-sequence FASTA format;\n"
+             "it is allowed to use degenerate bases.\n"
+             "Names of amplicons' primers should end with F or R, and otherwise match.\n"
+             "(Optionally include Taq probes etc ending with P/Q/etc.\n"
+             "All names differing in only the last letter will be kept in the same pool.\n"
+             "To force a pool choice, put @2: at start of primer name for pool 2.)\n"
+             "Optionally include tags to apply to all primers: >tagF and >tagR\n"
+             "(you can change these mid-file if you want to vary your tags)"); // tags are applied based on their last letter (tagN)
         AllPrimers ap=loadFASTA(getFile("File name: ","rb",NULL,NULL));
         if(ap.np>0) {
           float *table = getDeltaG(ap.maxLen);
@@ -515,6 +523,8 @@ int main(int argc, char *argv[]) {
             printf("Computer suggestion is %d pools.\nYou can go with this, or you can pick your own number.\n",suggest_num_pools(ap,cache,table));
             do {
               int nPools = getNum("How many pools? ",0);
+              if(nPools<=1) { puts("Cannot divide into less than 2 pools."); continue; }
+              else if(nPools<cache.fix_min_pools) { printf("Must be at least %d pools, because you have primers with names starting @%d:\n",cache.fix_min_pools,cache.fix_min_pools); continue; }
               int average = 2*averagePairsRoundUp(ap.np,nPools); /* important to round UP, for the getNum below */
               puts("Setting a maximum size of each pool can make the pools more even.");
               suggestMax(nPools,average,ap.np);

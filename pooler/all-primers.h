@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.43 (c) 2016-18 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.5 (c) 2016-18 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -14,7 +14,7 @@
    don't include bit-choice.h (which must be included only
    by bit-common.c) */
 typedef struct {
-  void *forward,*backward,*tags; // not quite but will do
+  void *forward,*backward,*tags; /* not void* but will do */
   int *whichTag; char* *names; void *rawData;
   int np; int maxLen;
 } AllPrimers;
@@ -28,7 +28,10 @@ void printBonds(AllPrimers ap,FILE *f,int threshold,const int *pools); /* pools=
 void printFASTA(AllPrimers ap,FILE *f,const int *pools,const int poolNo);
 void freeAllPrimers(AllPrimers ap);
 
-typedef struct { /* things that don't vary with number of pools */ int *scores; int *primerMove_depends_on; } PS_cache;
+typedef struct { /* PS_cache: things that don't vary with number of pools */
+  int *scores; int *primerMove_depends_on;
+  int *fix_to_pool; int fix_min_pools;
+} PS_cache;
 int* split_into_pools(AllPrimers ap,int numPools,int timeLimit,PS_cache cache,int seedless,const float *table,int maxCount);
 int suggest_num_pools(AllPrimers ap,PS_cache cache,const float *table);
 PS_cache PS_precalc(AllPrimers ap,const float *table,const char *overlappingAmplicons,const int *primerNoToAmpliconNo,int nAmplicons); /* nAmplicons=0 ok if discounting that; table==NULL ok if not doing dG */
