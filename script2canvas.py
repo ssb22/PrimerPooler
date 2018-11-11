@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 # Read timing and output files from Unix "script" utility
 # and convert them to modified-DOStoy input for HTML5 canvas.
 # (c) 2016 Silas S. Brown.  Version 1.1.
