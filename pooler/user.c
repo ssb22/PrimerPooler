@@ -594,7 +594,7 @@ int main(int argc, char *argv[]) {
         puts("--genome=PATH to check amplicons for overlaps in the genome (.2bit or .fa)");
         puts("--amp-max=LENGTH sets max amplicon length for the overlap check (default 220)"); /* v1.35 added 0 = unlimited, not available in interactive version */
         puts("--multiplx=FILE (write MultiPLX input after the --genome stage)");
-        puts("--seedless (don't seed random number generator, and use the same\n           one across all operating systems for reproducibility)");
+        puts("--seedless (don't seed random number generator)");
         exit(0);
       } else if(!strcmp(argv[i],"--version")) {
         /* TODO: document this option under --help ? */
