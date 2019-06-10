@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.5 (c) 2016-18 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.51 (c) 2016-19 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -101,7 +101,8 @@ static inline ULL valueOfReduction(ULL from,ULL to) {
      as well just return 0, since we won't perform any
      value-based moves that don't have positive reductions
   */
-  if(to > from) return 0; if(!to) return from;
+  if(to > from) return 0;
+  if(!to) return from;
   if(maxScoreOfBadness(from) == maxScoreOfBadness(to)) {
     /* 'from-to' will be a 48-bit value, and if get here
        then the high 16 bits of 'to' will be <= 'from',

@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.5 (c) 2016-18 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.51 (c) 2016-19 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -79,13 +79,13 @@ AllPrimers loadFASTA(FILE *f) {
 }
 void addTags(AllPrimers ap) {
   int i;
-  if(ap.maxLen <= 64)
+  if(ap.maxLen <= 64) {
     for(i=0; i<ap.np; i++) if(ap.whichTag[i]>=0) {
       MaybeDegeneratePrimer64 tag=ap.tags.p64[ap.whichTag[i]];
       MaybeDegeneratePrimerTag64(ap.forward.p64+i,tag);
       MaybeDegeneratePrimerTag64B(ap.backward.p64+i,tag);
     }
-  else
+  } else
     for(i=0; i<ap.np; i++) if(ap.whichTag[i]>=0) {
       MaybeDegeneratePrimer128 tag=ap.tags.p128[ap.whichTag[i]];
       MaybeDegeneratePrimerTag128(ap.forward.p128+i,tag);
@@ -94,13 +94,13 @@ void addTags(AllPrimers ap) {
 }
 void removeTags(AllPrimers ap) {
   int i;
-  if(ap.maxLen <= 64)
+  if(ap.maxLen <= 64) {
     for(i=0; i<ap.np; i++) if(ap.whichTag[i]>=0) {
       MaybeDegeneratePrimer64 tag=ap.tags.p64[ap.whichTag[i]];
       MaybeDegeneratePrimerRmTag64(ap.forward.p64+i,tag);
       MaybeDegeneratePrimerRmTag64B(ap.backward.p64+i,tag);
     }
-  else
+  } else
     for(i=0; i<ap.np; i++) if(ap.whichTag[i]>=0) {
       MaybeDegeneratePrimer128 tag=ap.tags.p128[ap.whichTag[i]];
       MaybeDegeneratePrimerRmTag128(ap.forward.p128+i,tag);
