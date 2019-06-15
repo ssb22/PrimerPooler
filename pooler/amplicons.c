@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.6 (c) 2016-19 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.61 (c) 2016-19 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -331,8 +331,7 @@ static inline void checkOverlaps(int ampNo,int nAmp,char *overlaps,int *inProgre
     if(*reportFileP) fprintf(*reportFileP,"WARNING: Found alternative product involving non-unique primer %s (%s:%u%c%u), treating as overlap\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[i].baseEnd);
   }
   for(j=0; j<nAmp; j++)
-    if(j!=ampNo && (inProgress[j] & strand) && !overlaps[ampNo*nAmp+j]) {
-      /* (versions before 1.6 ignored strand, thus detecting overlaps more than necessary) */
+    if(j!=ampNo && (inProgress[j]/* EITHER strand, as per versions prior to 1.6; Version 1.6 also checked strand but this is incorrect as the complement will be amplified too; f ixed in Version 6.1 released a few hours later 2019-06-15 Sat. */) && !overlaps[ampNo*nAmp+j]) {
       overlaps[ampNo*nAmp+j] =
         overlaps[j*nAmp+ampNo] = 1;
       if(prnOver) fputs(", ",stderr); else {
@@ -377,11 +376,9 @@ static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *
     if(onOrOff_and_Strand < 0) { /* it's an end event */
       if(inProgress[ampNo] & -onOrOff_and_Strand)
         inProgress[ampNo] += onOrOff_and_Strand;
-      else { /* added in v1.6,
-                isolated end-events on same strand as
-                one that's already running: */
+      else { /* added in v1.6, isolated end-event */
         int j; for(j=0; j<nAmp; j++)
-                 if(inProgress[j] & -onOrOff_and_Strand) break;
+                 if(inProgress[j]) break;
         if(j<nAmp) {
           checkOverlaps(ampNo,nAmp,overlaps,inProgress,inProgressI,&nOverlaps,reportFileP,events,i,i,names,seqNo,-onOrOff_and_Strand,maxAmpliconLen);
         }
@@ -390,10 +387,9 @@ static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *
       /* start event of same type (+ve or -ve strand first) as the one already in progress: ignore */
     } else { /* start */
       int end=findEndEvent(seqNo,i,maxAmpliconLen);
-      if(!end) { /* added in v1.6, isolated start
-                  on same strand as one running */
+      if(!end) { /* added in v1.6, isolated start  */
         int j; for(j=0; j<nAmp; j++)
-                 if(inProgress[j] & onOrOff_and_Strand) break;
+                 if(inProgress[j]) break;
         if(j<nAmp) checkOverlaps(ampNo,nAmp,overlaps,inProgress,inProgressI,&nOverlaps,reportFileP,events,i,i,names,seqNo,onOrOff_and_Strand,maxAmpliconLen);
         continue;
       }
