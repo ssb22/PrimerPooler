@@ -384,7 +384,9 @@ static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *
         }
       }
     } else if(inProgress[ampNo] & onOrOff_and_Strand) {
-      /* start event of same type (+ve or -ve strand first) as the one already in progress: ignore */
+      /* duplicate start ?? */
+      SetColour(Bright,Blue,Black); fprintf(stderr,"Ambiguous product start involving non-unique primer %s (%s:%u%c%u)\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((onOrOff_and_Strand==1)?'+':'-'),events[i].baseEnd); ResetColour();
+      if(*reportFileP) fprintf(*reportFileP,"Ambiguous product start involving non-unique primer %s (%s:%u%c%u)\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((onOrOff_and_Strand==1)?'+':'-'),events[i].baseEnd);
     } else { /* start */
       int end=findEndEvent(seqNo,i,maxAmpliconLen);
       if(!end) { /* added in v1.6, isolated start  */
