@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.51 (c) 2016-19 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.6 (c) 2016-19 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -80,13 +80,13 @@ static int amplicons_from_primer_names(AllPrimers ap,int* *primerNoToAmpliconNo,
 }
 
 typedef struct {
-  b32 baseEnd,baseStart; int ampNo, onOrOff;
+  b32 baseEnd,baseStart; int ampNo, onOrOff_and_Strand;
   char *name; /* for reports */
 } AmpEvent;
 typedef struct {
   bit64 lhsBases; /* = p & minValid, for the bsearch (is actually the LAST len(minValid)/2 bases before the cursor, but we're reading backwards from the left see below) */
   bit64 p; bit64 valid; /* what we're looking for */
-  int ampNo, onOrOff; /* what to do when we find it */
+  int ampNo, onOrOff_and_Strand; /* what to do when we find it */
   int primerNo; char* name; /* for reports */
 } PrimerToFind;
 static int PF_cmp_func(const void *aP, const void *bP) {
@@ -185,12 +185,12 @@ void look(bit64 buf,bit64 valid,int seqNo,b32 baseEnd) {
         #ifdef Debug_AmpliconNo
         extern SeqName lastSequenceNameRead;
         if(Debug_AmpliconNo(found->ampNo))
-          fprintf(stderr,"Event #%lu: amplicon %d state %d baseEnd=%s:%u \n",l->ptr,found->ampNo,found->onOrOff,lastSequenceNameRead,baseEnd);
+          fprintf(stderr,"Event #%lu: amplicon %d state %d baseEnd=%s:%u \n",l->ptr,found->ampNo,found->onOrOff_and_Strand,lastSequenceNameRead,baseEnd);
         #endif
         l->events[l->ptr].baseEnd = baseEnd;
         l->events[l->ptr].baseStart = baseEnd - (64-__builtin_ctzll(found->valid))/2 + 1; /* +1 to bring into line with what UCSC browser does */
         l->events[l->ptr].ampNo = found->ampNo;
-        l->events[l->ptr].onOrOff = found->onOrOff;
+        l->events[l->ptr].onOrOff_and_Strand = found->onOrOff_and_Strand;
         l->events[l->ptr++].name = found->name;
       }}}}
 
@@ -223,7 +223,7 @@ static PrimerToFind* populatePF(AllPrimers ap,int *ampliconNoToFwd,int *amplicon
             fprintf(stderr,"%d/%d (rc=%d): ",i,nPo,reverseAndComplement); debugPrnRTL(pF[outP].p,pF[outP].valid); fprintf(stderr," -> %d\n",outP); /* offset in primerVariantsToFind */
           }
 #endif
-          pF[outP].ampNo = ampNo; pF[outP].onOrOff = ((isFwd==reverseAndComplement)?-1:1)*(isFwd?1:-1) * (1+(isFwd == reverseAndComplement)); // this should get +1,-1 for +ve strand 1st, or +2,-2 for -ve strand 1st
+          pF[outP].ampNo = ampNo; pF[outP].onOrOff_and_Strand = ((isFwd==reverseAndComplement)?-1:1)*(isFwd?1:-1) * (1+(isFwd == reverseAndComplement)); // this should get +1,-1 for +ve strand 1st, or +2,-2 for -ve strand 1st
           pF[outP].primerNo = primerNo;
           pF[outP++].name=ap.names[primerNo];
         }
@@ -305,16 +305,16 @@ static int findEndEvent(int seq,int startEvent,int maxAmpliconLen) {
   AmpEvent *events = eventLists[seq].events;
   #ifdef Debug_AmpliconNo
   if(Debug_AmpliconNo(events[startEvent].ampNo) && maxAmpliconLen)
-    fprintf(stderr,"findEndEvent (%d/%d): baseStart=%u so max baseEnd=%u\n",events[startEvent].ampNo,events[startEvent].onOrOff,events[startEvent].baseStart,events[startEvent].baseStart+maxAmpliconLen);
+    fprintf(stderr,"findEndEvent (%d/%d): baseStart=%u so max baseEnd=%u\n",events[startEvent].ampNo,events[startEvent].onOrOff_and_Strand,events[startEvent].baseStart,events[startEvent].baseStart+maxAmpliconLen);
   #endif
   int i; for(i=startEvent+1; i<(int)eventLists[seq].ptr; i++) {
     #ifdef Debug_AmpliconNo
     if(Debug_AmpliconNo(events[startEvent].ampNo))
-      fprintf(stderr," - checking #%d: %d/%d (ends %u)\n",i,events[i].ampNo,events[i].onOrOff,events[i].baseEnd);
+      fprintf(stderr," - checking #%d: %d/%d (ends %u)\n",i,events[i].ampNo,events[i].onOrOff_and_Strand,events[i].baseEnd);
     #endif
     if(maxAmpliconLen && events[startEvent].baseStart+(b32)maxAmpliconLen < events[i].baseEnd) break; /* gone too far ahead */
     if(events[i].ampNo==events[startEvent].ampNo) {
-      if (events[i].onOrOff == -events[startEvent].onOrOff) return i; /* found it */
+      if (events[i].onOrOff_and_Strand == -events[startEvent].onOrOff_and_Strand) return i; /* found it */
       else break; /* duplicate start??  abort now and take second (shorter) one (v1.35 added) */
     }
   }
@@ -323,6 +323,39 @@ static int findEndEvent(int seq,int startEvent,int maxAmpliconLen) {
     fprintf(stderr," - not found (lookahead=%d)\n",i-startEvent);
   #endif
   return 0;
+}
+static inline void checkOverlaps(int ampNo,int nAmp,char *overlaps,int *inProgress,int *inProgressI,int *nOverlaps,FILE* *reportFileP,AmpEvent *events,int i,int end,SeqName *names,int seqNo,int strand,int maxAmpliconLen) {
+  int prnOver=0, j;
+  if (i==end) {
+    SetColour(Bright,Blue,Black); fprintf(stderr,"Found alternative product involving non-unique primer %s (%s:%u%c%u), treating as overlap\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[i].baseEnd); ResetColour();
+    if(*reportFileP) fprintf(*reportFileP,"WARNING: Found alternative product involving non-unique primer %s (%s:%u%c%u), treating as overlap\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[i].baseEnd);
+  }
+  for(j=0; j<nAmp; j++)
+    if(j!=ampNo && (inProgress[j] & strand) && !overlaps[ampNo*nAmp+j]) {
+      /* (versions before 1.6 ignored strand, thus detecting overlaps more than necessary) */
+      overlaps[ampNo*nAmp+j] =
+        overlaps[j*nAmp+ampNo] = 1;
+      if(prnOver) fputs(", ",stderr); else {
+        if(!*nOverlaps) {
+          fputs("Overlapping amplicons:\n",stderr);
+          if(!*reportFileP) *reportFileP = fopen(getReportFilename(),"w");
+          if(*reportFileP) fputs("Overlapping amplicons:\n",*reportFileP);
+        }
+        /* print the "new" amplicon first */
+        fprintf(stderr,"%s:%s (%s:%u%c%u) / ",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[end].baseEnd);
+        if(*reportFileP) fprintf(*reportFileP,"%s:%s (%s:%u%c%u) / ",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[end].baseEnd);
+        prnOver=1;
+      }
+      (*nOverlaps)++;
+      /* print the amplicon it's overlapping with: */
+      AmpEvent *overlapWithStart = events+inProgressI[j], *overlapWithEnd = events+findEndEvent(seqNo,inProgressI[j],maxAmpliconLen);
+      fprintf(stderr,"%s:%s (%u%c%u)",overlapWithStart->name,overlapWithEnd->name,overlapWithStart->baseStart,((overlapWithStart->onOrOff_and_Strand==1)?'+':'-'),overlapWithEnd->baseEnd);
+      if(*reportFileP) fprintf(*reportFileP,"%s:%s (%u%c%u)",overlapWithStart->name,overlapWithEnd->name,overlapWithStart->baseStart,((overlapWithStart->onOrOff_and_Strand==1)?'+':'-'),overlapWithEnd->baseEnd);
+    }
+  if(prnOver) {
+    fputs("\n",stderr);
+    if(*reportFileP) fputs("\n",*reportFileP);
+  }
 }
 static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *reportFileP,AllPrimers ap,const int *ampliconNoToFwd,const int *ampliconNoToRev,FILE *allAmps,int allAmpsIsMultiPLX,FILE *genome) {
   char *ampsFound=calloc(1,nAmp);
@@ -339,18 +372,33 @@ static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *
   AmpEvent *events=eventLists[seqNo].events;
   qsort(events,eventLists[seqNo].ptr,sizeof(AmpEvent),eventOrder);
   int i; for(i=0; i<(int)eventLists[seqNo].ptr; i++) {
-    int onOrOff = events[i].onOrOff,
+    int onOrOff_and_Strand = events[i].onOrOff_and_Strand,
       ampNo = events[i].ampNo;
-    if(onOrOff < 0) { /* it's an end event */
-      if(inProgress[ampNo] & -onOrOff)
-        inProgress[ampNo] += onOrOff;
-    } else if(inProgress[ampNo] & onOrOff) {
-      /* already in progress: ignore */
-    } else {
+    if(onOrOff_and_Strand < 0) { /* it's an end event */
+      if(inProgress[ampNo] & -onOrOff_and_Strand)
+        inProgress[ampNo] += onOrOff_and_Strand;
+      else { /* added in v1.6,
+                isolated end-events on same strand as
+                one that's already running: */
+        int j; for(j=0; j<nAmp; j++)
+                 if(inProgress[j] & -onOrOff_and_Strand) break;
+        if(j<nAmp) {
+          checkOverlaps(ampNo,nAmp,overlaps,inProgress,inProgressI,&nOverlaps,reportFileP,events,i,i,names,seqNo,-onOrOff_and_Strand,maxAmpliconLen);
+        }
+      }
+    } else if(inProgress[ampNo] & onOrOff_and_Strand) {
+      /* start event of same type (+ve or -ve strand first) as the one already in progress: ignore */
+    } else { /* start */
       int end=findEndEvent(seqNo,i,maxAmpliconLen);
-      if(!end) continue;
+      if(!end) { /* added in v1.6, isolated start
+                  on same strand as one running */
+        int j; for(j=0; j<nAmp; j++)
+                 if(inProgress[j] & onOrOff_and_Strand) break;
+        if(j<nAmp) checkOverlaps(ampNo,nAmp,overlaps,inProgress,inProgressI,&nOverlaps,reportFileP,events,i,i,names,seqNo,onOrOff_and_Strand,maxAmpliconLen);
+        continue;
+      }
       ampsFound[ampNo] = 1;
-      inProgress[ampNo] += onOrOff;
+      inProgress[ampNo] += onOrOff_and_Strand;
       inProgressI[ampNo] = i;
       int ampLength = events[end].baseEnd+1-events[i].baseStart;
       if (ampLength>maxLenFound) maxLenFound=ampLength;
@@ -365,33 +413,9 @@ static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *
           fputc('\t',allAmps);
           output_genome_segment(genome,seqNo,events[i].baseStart,ampLength,allAmps);
           fputc('\n',allAmps);
-        } else fprintf(allAmps,"%s:%s (%s:%u%c%u)\n",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((onOrOff==1)?'+':'-'),events[end].baseEnd);
+        } else fprintf(allAmps,"%s:%s (%s:%u%c%u)\n",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((onOrOff_and_Strand==1)?'+':'-'),events[end].baseEnd);
       }
-      /* now check if there's any overlaps with other amplicons that are already running */
-      int prnOver=0, j;
-      for(j=0; j<nAmp; j++)
-        if(j!=ampNo && inProgress[j] && !overlaps[ampNo*nAmp+j]) {
-          overlaps[ampNo*nAmp+j] =
-            overlaps[j*nAmp+ampNo] = 1;
-          if(prnOver) fputs(", ",stderr); else {
-            if(!nOverlaps) {
-              fputs("Overlapping amplicons:\n",stderr);
-              if(!*reportFileP) *reportFileP = fopen(getReportFilename(),"w");
-              if(*reportFileP) fputs("Overlapping amplicons:\n",*reportFileP);
-            }
-            fprintf(stderr,"%s:%s (%s:%u%c%u) / ",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((onOrOff==1)?'+':'-'),events[end].baseEnd);
-            if(*reportFileP) fprintf(*reportFileP,"%s:%s (%s:%u%c%u) / ",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((onOrOff==1)?'+':'-'),events[end].baseEnd);
-            prnOver=1;
-          }
-          nOverlaps++;
-          AmpEvent *overlapWithStart = events+inProgressI[j], *overlapWithEnd = events+findEndEvent(seqNo,inProgressI[j],maxAmpliconLen);
-          fprintf(stderr,"%s:%s (%u%c%u)",overlapWithStart->name,overlapWithEnd->name,overlapWithStart->baseStart,((overlapWithStart->onOrOff==1)?'+':'-'),overlapWithEnd->baseEnd);
-          if(*reportFileP) fprintf(*reportFileP,"%s:%s (%u%c%u)",overlapWithStart->name,overlapWithEnd->name,overlapWithStart->baseStart,((overlapWithStart->onOrOff==1)?'+':'-'),overlapWithEnd->baseEnd);
-        }
-      if(prnOver) {
-        fputs("\n",stderr);
-        if(*reportFileP) fputs("\n",*reportFileP);
-      }
+      checkOverlaps(ampNo,nAmp,overlaps,inProgress,inProgressI,&nOverlaps,reportFileP,events,i,end,names,seqNo,onOrOff_and_Strand,maxAmpliconLen);
     }
   }} /* finished - rest of this function is reporting */
   if (allAmpsIsMultiPLX) removeTags(ap);
