@@ -116,7 +116,7 @@ To obtain a .2bit file from UCSC:
 
 3. Choose “Full data set”
 
-4. Scroll down to the links, and choose the one that ends `.2bit` (e.g. [hg38.2bit](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.2bit)
+4. Scroll down to the links, and choose the one that ends `.2bit` (e.g. [hg38.2bit](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.2bit))
 
 Primer Pooler will then ask for a maximum amplicon length (in base pairs): this is the maximum length of the _product_—the number does _not_ include the length of any tag sequences you have added to the primers. Then it will scan through the genome data to detect where your amplicons start and finish, and which ones overlap.
 
