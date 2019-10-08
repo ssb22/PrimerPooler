@@ -1,9 +1,9 @@
 PrimerPooler
 ============
 
-From http://people.ds.cam.ac.uk/ssb22/pooler/
+From http://ssb22.user.srcf.net/pooler/
 
-(mirrored at http://ssb22.gitlab.io/pooler/)
+(mirrored at http://ssb22.gitlab.io/pooler/ just in case)
 
 This is a program I wrote for cancer researchers and others who want to use
 Multiplex PCR to study
@@ -426,4 +426,13 @@ Usage:
 
 5. Test
 
-All material © Silas S. Brown unless otherwise stated. Javascript is a trademark of Oracle Corporation in the US. Linux is the registered trademark of Linus Torvalds in the U.S. and other countries. Any other trademarks I mentioned without realising are trademarks of their respective holders.
+Copyright and Trademarks
+========================
+
+All material © Silas S. Brown unless otherwise stated.  Licenses as stated above.
+
+* Javascript is a trademark of Oracle Corporation in the US.
+
+* Linux is the registered trademark of Linus Torvalds in the U.S. and other countries.
+
+* Any other trademarks I mentioned without realising are trademarks of their respective holders.
