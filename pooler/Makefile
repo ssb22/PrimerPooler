@@ -92,12 +92,12 @@ upx:
 	upx --best *.exe
 
 publish: mac-portable test-other
-	mv pooler pooler0
+	rm -f ppoler.zip
 	vagrant up # x86-64 MingW not installed locally:
-	vagrant ssh -c 'cd /vagrant && make && make win-crosscompile' # GNU/Linux 'make' included just to make sure (if running on a mac)
-	vagrant halt
-	mv pooler0 pooler # overwriting Linux version
-	rm -f pooler.zip ; zip -9 pooler.zip pooler
+	vagrant ssh -c 'cd /vagrant && advzip -4 --i 1000 -a pooler.zip pooler && rm pooler && make && make win-crosscompile' # pooler.zip is Mac version (advzip used to save an extra little bit of space over zip); GNU/Linux 'make' included in command just to make sure
+# zopfli --i1000 pooler.tar
 	make upx pooler.tgz
+	vagrant ssh -c 'cd /vagrant && gzip -d pooler.tgz && zopfli --i1000 pooler.tar && mv pooler.tar.gz pooler.tgz && rm -f pooler.tar' # save another 2k or so (but still use tgz in case someone doesn't have xz)
+	vagrant halt
 	scp pooler.zip pooler.exe pooler64.exe pooler.tgz ds:homepage/pooler/
 	ssh ds homepage/update
