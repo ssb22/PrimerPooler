@@ -1,8 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
+# (should work in either Python 2 or Python 3)
 
 # Read timing and output files from Unix "script" utility
 # and convert them to modified-DOStoy input for HTML5 canvas.
-# (c) 2016 Silas S. Brown.  Version 1.1.
+# (c) 2016,2020 Silas S. Brown.  Version 1.3.
 # License: MIT as per the modified DOStoy we include (see below)
 
 # use: script -t log2 2>log1 (GNU/Linux, not BSD/Mac as it doesn't log the timing)
@@ -17,17 +18,30 @@ while i<len(dn)-1:
         del dn[i+1]
         if i >= len(dn)-1: break
     i += 1
-dat = open(outputFile,"r") ; dat.readline() # ignore start
+dat = open(outputFile,"r")
+try:
+    xrange # Python 2
+    def S(m): return m
+except: # Python 3
+    xrange = range
+    def S(m): return m.decode('latin1')
+    _,dat = dat,dat.buffer
+dat.readline() # ignore start
 for i in xrange(len(dn)): dn[i] = (dn[i][0],dat.read(dn[i][1]))
 del dat ; i = 0
+newline = u"\n".encode('utf-8') # Python 2 or Python 3
+backslashR = u"\r".encode('utf-8') # Python 2 or Python 3
+tab = u"\t".encode('utf-8') # Python 2 or Python 3
+empty = u"".encode('utf-8') # Python 2 or Python 3
 while i<len(dn):
-    while len(dn[i][1].split("\n")) > 25:
+    while len(dn[i][1].split(newline)) > 25:
         # More than 1 screen at a time is bad news: it won't be displayed, and overloading the JS interpreter can completely crash some tablet browsers.  Break it up a bit.
-        dn.insert(i,(dn[i][0],"\n".join(dn[i][1].split("\n")[:25])+"\n")) ; i += 1
-        dn[i] = (minDelay,"\n".join(dn[i][1].split("\n")[25:]))
+        dn.insert(i,(dn[i][0],newline.join(dn[i][1].split(newline)[:25])+newline))
+        i += 1
+        dn[i] = (minDelay,newline.join(dn[i][1].split(newline)[25:]))
     i += 1
 funcNo = 1
-print """
+print ("""
 /**
  * dostoy - A silly interactive retro console library for the HTML5 canvas
  * Originally from https://github.com/toolsley/dostoy
@@ -317,58 +331,60 @@ dostoy.init({canvas:document.getElementById("DOStoyCanvas")});
         Canvas.addEventListener("click",pause);
         dostoy.cls(); dostoy.setCursor(true);
 function ST(t,f) { window.setTimeout(function(){if(window.dosToyPaused) window.dosToyNext=f; else f()},t); }
-function f0() {"""
+function f0() {""")
 for delay,chars in dn:
     if delay < minDelay: delay = 0
     if delay > maxDelay: delay = maxDelay
-    if chars.endswith("\r") or chars.startswith("\r"): delay = min(delay,minDelay)
+    if chars.endswith(backslashR) or chars.startswith(backslashR):
+        delay = min(delay,minDelay)
     if delay:
-        print "ST("+str(delay)+",f"+str(funcNo)+")} function f"+str(funcNo)+"(){"
+        print ("ST("+str(delay)+",f"+str(funcNo)+")} function f"+str(funcNo)+"(){")
         funcNo += 1
     x=0 ; width=80
     while chars:
-        if chars.startswith('\x08'):
-            print "dostoy.backspace();"
+        if ord(chars[0:1])==8:
+            print ("dostoy.backspace();")
             x -= 1
             if x<0: x = width-1
             chars = chars[1:] ; continue
-        if chars.startswith('\x1b[K'):
-            print "dostoy.clearEOL();"
+        if chars.startswith(u'\x1b[K'.encode('utf-8')):
+            print ("dostoy.clearEOL();")
             chars = chars[3:] ; continue
-        if chars.startswith('\x1b]0;'): # TODO check this
+        if chars.startswith(u'\x1b]0;'.encode('utf-8')): # TODO check this
             chars = chars[4:] ; continue
-        m = re.match(re.escape("\x1b[")+r"([0-9;]*)m",chars)
+        m = re.match(re.escape(u"\x1b[([0-9;]*)m".encode('utf-8')),chars)
         if m:
-            for code in m.group(1).split(';'):
+            for code in m.group(1).split(u';'.encode('utf-8')):
                 code = int(code)
                 if 30<=code<=37: fg = code-30
                 elif 40<=code<=47: bg=code-40
                 elif code==1: bright = 8
                 elif code==0: bg,fg,bright = 0,7,0
-            print "dostoy.color(%d,%d);" % (bg,fg+bright)
+            print ("dostoy.color(%d,%d);" % (bg,fg+bright))
             chars = chars[m.end():] ; continue
-        m = re.match(r'[ -~]*(\r?\n)?',chars)
+        m = re.match(u'[ -~]*(\\r?\\n)?'.encode('utf-8'),chars)
         if m and m.end():
             m = m.group()
-            if len(m.replace("\r",""))+x >= width and not (len(m.replace("\r",""))+x==width and m.endswith("\n")):
-                m=m[:width-x].replace("\r","")
+            l = len(m.replace(backslashR,empty))
+            if l+x >= width and not (l+x==width and m.endswith(newline)):
+                m=m[:width-x].replace(backslashR,empty)
                 f = "println"
-            elif m.endswith('\n'): f = "println"
+            elif m.endswith(newline): f = "println"
             else: f="print"
             chars = chars[len(m):]
-            if m.endswith('\n'): m = m[:-1].replace("\r","")
-            print "dostoy."+f+"(\""+m.replace('\\','\\\\').replace('"','\\"')+"\");"
+            if m.endswith(newline): m = m[:-1].replace(backslashR,empty)
+            print ("dostoy."+f+"(\""+S(m).replace('\\','\\\\').replace('"','\\"')+"\");")
             if f=="print": x += len(m)
             else: x = 0
-            continue
-        if chars[0]=="\r":
-            print "dostoy.startOfLine();"
-            chars = chars[1:] ; x = 0 ; continue
-        if chars[0]=="\t":
-            chars = ' '*(8-(x%8)) + chars[1:] ; continue
-        print "/* Ignoring "+repr(chars[0])+" */"
-        chars = chars[1:]
-print """ST(3000,function(){dostoy.color(0,7); dostoy.print(repeat(" ",20)); dostoy.color(4, 15);
+        elif chars[0:1]==backslashR:
+            print ("dostoy.startOfLine();")
+            chars = chars[1:] ; x = 0
+        elif chars[0:1]==tab:
+            chars = ' '*(8-(x%8)) + chars[1:]
+        else:
+            print ("/* Ignoring "+repr(chars[0])+" */")
+            chars = chars[1:]
+print ("""ST(3000,function(){dostoy.color(0,7); dostoy.print(repeat(" ",20)); dostoy.color(4, 15);
 dostoy.println(dostoy.chr("201" + repeat(",205", 34) + ",187"));
 dostoy.color(0,7); dostoy.print(repeat(" ",20)); dostoy.color(4, 15);
 dostoy.println(dostoy.chr("186") + "   *** End of demonstration ***   " + dostoy.chr("186"))
@@ -381,4 +397,4 @@ Canvas.addEventListener("click",onclick);})}f0();
             };
     Canvas.addEventListener("click",onclick);
 },1000);}
-"""
+""")
