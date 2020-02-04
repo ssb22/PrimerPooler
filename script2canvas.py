@@ -1,16 +1,17 @@
 #!/usr/bin/env python
-# (should work in either Python 2 or Python 3)
+# (works in either Python 2 or Python 3)
 
 # Read timing and output files from Unix "script" utility
 # and convert them to modified-DOStoy input for HTML5 canvas.
-# (c) 2016,2020 Silas S. Brown.  Version 1.3.
+# (c) 2016,2020 Silas S. Brown.  Version 1.31.
 # License: MIT as per the modified DOStoy we include (see below)
 
 # use: script -t log2 2>log1 (GNU/Linux, not BSD/Mac as it doesn't log the timing)
-timingFile = "log1" ; outputFile = "log2"
+timingFile = open("log1")
+outputFile = open("log2")
 
 import re ; bg,fg,bright = 0,7,0
-dn = [(int(float(delay)*1000),int(nChars)) for delay,nChars in [l.split() for l in open(timingFile).read().split("\n") if l]]
+dn = [(int(float(delay)*1000),int(nChars)) for delay,nChars in [l.split() for l in timingFile.read().split("\n") if l]]
 i=0 ; minDelay,maxDelay = 100,3000
 while i<len(dn)-1:
     while dn[i][0] < minDelay and dn[i+1][0] < minDelay:
@@ -18,17 +19,16 @@ while i<len(dn)-1:
         del dn[i+1]
         if i >= len(dn)-1: break
     i += 1
-dat = open(outputFile,"r")
 try:
     xrange # Python 2
     def S(m): return m
 except: # Python 3
     xrange = range
     def S(m): return m.decode('latin1')
-    _,dat = dat,dat.buffer
-dat.readline() # ignore start
-for i in xrange(len(dn)): dn[i] = (dn[i][0],dat.read(dn[i][1]))
-del dat ; i = 0
+    _,outputFile = outputFile,outputFile.buffer
+outputFile.readline() # ignore start
+for i in xrange(len(dn)): dn[i] = (dn[i][0],outputFile.read(dn[i][1]))
+del outputFile ; i = 0
 newline = u"\n".encode('utf-8') # Python 2 or Python 3
 backslashR = u"\r".encode('utf-8') # Python 2 or Python 3
 tab = u"\t".encode('utf-8') # Python 2 or Python 3
@@ -382,7 +382,7 @@ for delay,chars in dn:
         elif chars[0:1]==tab:
             chars = ' '*(8-(x%8)) + chars[1:]
         else:
-            print ("/* Ignoring "+repr(chars[0])+" */")
+            print ("/* Ignoring "+repr(chars[:1])+" */")
             chars = chars[1:]
 print ("""ST(3000,function(){dostoy.color(0,7); dostoy.print(repeat(" ",20)); dostoy.color(4, 15);
 dostoy.println(dostoy.chr("201" + repeat(",205", 34) + ",187"));
