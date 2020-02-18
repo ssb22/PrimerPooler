@@ -91,6 +91,7 @@ test-other: 128.h 32.h 32-64.h copyright.h
 upx:
 	upx --best *.exe
 
+# make publish M="commit message goes here"
 publish: mac-portable test-other
 	rm -f pooler.zip
 	vagrant up # x86-64 MingW not installed locally:
@@ -100,4 +101,4 @@ publish: mac-portable test-other
 	vagrant ssh -c 'cd /vagrant && gzip -d pooler.tgz && zopfli --i1000 pooler.tar && mv pooler.tar.gz pooler.tgz && rm -f pooler.tar' # save another 2k or so (but still use tgz in case someone doesn't have xz)
 	vagrant halt
 	scp pooler.zip pooler.exe pooler64.exe pooler.tgz ds:homepage/pooler/
-	ssh ds homepage/update
+	ssh ds 'CommitMsg_PrimerPooler="$(M)" homepage/update'
