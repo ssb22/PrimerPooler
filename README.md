@@ -350,7 +350,7 @@ Command line
 : A way of interacting with the computer that involves typing commands on the keyboard and seeing the computer’s response written below. It might not look as nice as a modern graphical desktop, but it can be quite efficient when you get used to it; moreover, if you’re writing in C then the command line tends to be the easiest interface to write for, freeing up the programmer to concentrate on the calculation part instead of having to spend all their time making it look pretty. Sometimes _another_ programmer who specialises in pretty front-ends will come along later and add one. (I’m more of a “back-end” than a “front-end” programmer.)
 
 CRISPR
-: Naturally occuring DNA fragments in unicellular immune systems that have been repurposed for genetic engineering. Widely hailed as the “next big thing” after PCR, but doesn’t _replace_ PCR: PCR is about reading/testing, while CRISPR is more about writing/changing like a Unix `sed` command (you script the edits but don’t _see_ them happen) although publications in 2019 did show CRISPR can be modified to create a visible signal when a cut is made, thereby becoming a sequence-detection tool for one sequence at a time.
+: Naturally occuring DNA fragments in unicellular immune systems that have been repurposed for genetic engineering. Widely hailed as the “next big thing” after PCR, but doesn’t yet replace it in all cases.  CRISPR is more about editing genes like a Unix `sed` command (you script the edits but don’t see them happen), but it can be modified to create a visible signal when a cut is made, thereby becoming a sequence-detection tool for one sequence at a time.
 
 Citation
 --------
