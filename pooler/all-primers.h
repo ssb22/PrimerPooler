@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.61 (c) 2016-19 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.7 (c) 2016-20 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -38,7 +38,7 @@ PS_cache PS_precalc(AllPrimers ap,const float *table,const char *overlappingAmpl
 void PS_free(PS_cache c);
 
 int* triangle(AllPrimers ap); // used by split_into_pools
-char* GetOverlappingAmplicons(AllPrimers ap,FILE*genome,int* *primerNoToAmpliconNo,int *nAmp,int maxAmpliconLen,FILE* allAmps,int allAmpsIsMultiPLX); // so overlap, primerNoToAmpliconNo and nAmp can be passed to split_into_pools
+char* GetOverlappingAmplicons(AllPrimers ap,FILE*genome,int* *primerNoToAmpliconNo,int *nAmp,int maxAmpliconLen,FILE* allAmps,int allAmpsIsMultiPLX,int ignoreVars); // so overlap, primerNoToAmpliconNo and nAmp can be passed to split_into_pools
 
 void printBasesMaybeD(AllPrimers ap,int n,FILE *f);
 int NumPossibilities_32bases(AllPrimers ap,int n); // used in amplicon.c

@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.61 (c) 2016-19 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.7 (c) 2016-20 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -503,13 +503,14 @@ int main(int argc, char *argv[]) {
           if(getYN("Shall I split this into pools for you? (y/n): ")) {
             int nAmplicons=0; char *overlappingAmplicons=NULL; int *primerNoToAmpliconNo=NULL;
             if(getYN("Shall I check the amplicons for overlaps in the genome? (y/n): ")) {
-              puts("OK, I need to see a genome file in .2bit or .fa format.\n(I'll ignore variant chromosomes i.e. sequences with _ or - in their names.)");
+              puts("OK, I need to see a genome file in .2bit or .fa format.\n(I'll ignore .)");
               FILE *f=getFile("File name: ","rb","hg38.2bit","http://hgdownload.cse.ucsc.edu/downloads.html"); // if human-specific, http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/
+              int ignoreVars = getYN("Do you want me to ignore variant chromosomes\ni.e. sequences with _ or - in their names? (y/n): ");
               puts("Please enter the maximum amplicon length (bp), for example 220\n"); // bp = base pairs
               int ampLen = getNum("Maximum amplicon length: ",0);
               int multiplx = getYN("Do you want to write a file of amplicons for MultiPLX as well? (y/n): ");
               FILE *allAmps = (multiplx || getYN("or do you want to write a file with the locations of all amplicons? (y/n): "))?getFile("File name for all amplicon locations: ","w",NULL,NULL):NULL;
-              overlappingAmplicons=GetOverlappingAmplicons(ap,f,&primerNoToAmpliconNo,&nAmplicons,ampLen,allAmps,multiplx);
+              overlappingAmplicons=GetOverlappingAmplicons(ap,f,&primerNoToAmpliconNo,&nAmplicons,ampLen,allAmps,multiplx,ignoreVars);
             }
             PS_cache cache=PS_precalc(ap,table,overlappingAmplicons,primerNoToAmpliconNo,nAmplicons);
             int seedless = -1;
@@ -573,6 +574,7 @@ int main(int argc, char *argv[]) {
     AllPrimers ap={0,0,0,0,0,0,0};
     int maxAmpliconLen = 220; // also in help text
     int seedless = 0, maxCount = 0, suggestPools = 0;
+    int ignoreVars = 1; // (default 1 for drop-in compatibility with v1.61 and below, which didn't have the option to turn it off)
     int i; for(i=1; i<argc; i++) {
       if(!strcmp(argv[i],"--help") || !strcmp(argv[i],"/help") || !strcmp(argv[i],"/?")) {
         printf("%s [options] FASTA-file\n",arg0());
@@ -586,6 +588,7 @@ int main(int argc, char *argv[]) {
         puts("(Set prefix to a single hyphen (-) to write all to stdout)");
         puts("--max-count=NUM (per pool)");
         puts("--genome=PATH to check amplicons for overlaps in the genome (.2bit or .fa)");
+        puts("--scan-variants scans variant sequences in the genome too (_ and - in names)");
         puts("--amp-max=LENGTH sets max amplicon length for the overlap check (default 220)"); /* v1.35 added 0 = unlimited, not available in interactive version */
         puts("--multiplx=FILE (write MultiPLX input after the --genome stage)");
         puts("--seedless (don't seed random number generator)");
@@ -628,6 +631,8 @@ int main(int argc, char *argv[]) {
         seedless = 1;
       else if(!strcmp(argv[i],"--suggest-pools"))
         suggestPools = 1;
+      else if(!strcmp(argv[i],"--scan-variants"))
+        ignoreVars = 0;
       else if(!strcmp(argv[i],"--pools")) numPools = -1;
       else if(!strncmp(argv[i],"--pools=",sizeof("--pools=")-1)) {
         char *p = argv[i]+sizeof("--pools=")-1;
@@ -677,7 +682,7 @@ int main(int argc, char *argv[]) {
       }
       int nAmplicons=0; char *overlappingAmplicons=NULL; int *primerNoToAmpliconNo=NULL;
       if(genomeFile)
-        overlappingAmplicons=GetOverlappingAmplicons(ap,genomeFile,&primerNoToAmpliconNo,&nAmplicons,maxAmpliconLen,multiplxFile,1); /* TODO: support ,0 here for just an all-amplicon-locations-file from command line? */
+        overlappingAmplicons=GetOverlappingAmplicons(ap,genomeFile,&primerNoToAmpliconNo,&nAmplicons,maxAmpliconLen,multiplxFile,1 /* TODO: support 0 here for just an all-amplicon-locations-file from command line? */, ignoreVars);
       if(numPools || suggestPools) {
         PS_cache cache=PS_precalc(ap,table,overlappingAmplicons,primerNoToAmpliconNo,nAmplicons);
         if(suggestPools || numPools<0) {

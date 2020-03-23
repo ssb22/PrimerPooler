@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.61 (c) 2016-19 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.7 (c) 2016-20 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -55,16 +55,21 @@ static int read_2bit_nSeqs(FILE *f,int *byteSwap,long *seqPtr) {
 }
 typedef char SeqName[256];
 SeqName lastSequenceNameRead={0};
+int variants_skipped;
 static int is_variant() {
-  return strchr(lastSequenceNameRead,'_') != NULL
-    || strchr(lastSequenceNameRead,'-') != NULL;
+  if (strchr(lastSequenceNameRead,'_') != NULL
+      || strchr(lastSequenceNameRead,'-') != NULL) {
+    ++variants_skipped;
+    return 1;
+  } else return 0;
 }
-static int read_2bit_nBases(FILE *f,int byteSwap,long *seqPtr,b32* *unknownStart,b32* *unknownLen,b32 *nBases,int *isVariant) {
+static int read_2bit_nBases(FILE *f,int byteSwap,long *seqPtr,b32* *unknownStart,b32* *unknownLen,b32 *nBases,int *isVariant,int ignoreVars) {
   if (fseek(f,*seqPtr,SEEK_SET)) { fputs("Seek error reading sequence offset\n",stderr); return 0; }
   int seqNameLen = getc(f);
   if(!fread(lastSequenceNameRead,1,seqNameLen,f)) { fputs("Error reading sequence name\n",stderr); return 0; }
   lastSequenceNameRead[seqNameLen]=0;
-  *isVariant = is_variant();
+  if(ignoreVars) *isVariant = is_variant();
+  else *isVariant = 0;
 #ifdef Debug_ChromosomeCheck
   *isVariant = strcmp(lastSequenceNameRead,Debug_ChromosomeCheck); /* treat any OTHER chromosome as a variant we won't read, for debugging with just one */
 #endif
@@ -146,14 +151,14 @@ static void takeFastaSeqName(FILE *f,const char *buf) {
   }
 }
 
-static SeqName* fasta_genome(FILE *f) {
+static SeqName* fasta_genome(FILE *f,int ignoreVars) {
   fprintf(stderr,"Reading genome from FASTA file\n(slower than .2bit; may take time)\n");
   int seqNo=0; char buf[80];
   SeqName *seqNames=NULL;
   while(!feof(f)) {
     if(seqNo) takeFastaSeqName(f,buf);
     else readFastaSeqName(f);
-    if(is_variant()) {
+    if(ignoreVars && is_variant()) {
       while(fgets(buf,sizeof(buf),f) && *buf != '>');
       continue;
     }
@@ -180,8 +185,9 @@ static SeqName* fasta_genome(FILE *f) {
   fprintf(stderr,"End of FASTA genome scan\n"); return seqNames;
 }
 
-SeqName* go_through_genome(FILE *f) {
-  if(is_fasta(f)) return fasta_genome(f);
+SeqName* go_through_genome(FILE *f,int ignoreVars) {
+  variants_skipped = 0;
+  if(is_fasta(f)) return fasta_genome(f,ignoreVars);
   int byteSwap=0; long seqPtr=0; // =0 to suppress warning
   int nSeq=read_2bit_nSeqs(f,&byteSwap,&seqPtr);
   if(!allocateSeqs(nSeq)) return NULL;
@@ -211,7 +217,7 @@ SeqName* go_through_genome(FILE *f) {
     #pragma omp critical
     #endif
     {
-    if(read_2bit_nBases(f,byteSwap,&seqPtr,&allUnknownStart,&allUnknownLen,&nBases,&isVariant)) {
+    if(read_2bit_nBases(f,byteSwap,&seqPtr,&allUnknownStart,&allUnknownLen,&nBases,&isVariant,ignoreVars)) {
     if(isVariant) { free(allUnknownStart); free(allUnknownLen); } else {
     if((renumberedSeqNo = seqsDone++) >= numSeqNames) {
       numSeqNames = (numSeqNames+1)<<1;
@@ -287,10 +293,15 @@ SeqName* go_through_genome(FILE *f) {
     if(buf) free(buf);
     free(allUnknownStart); free(allUnknownLen);
     if(pgBuf) memset(pgBuf,' ',ProgWidthPerThread-isRHS);
-  } fprintf(stderr,"\rGenome scan complete");prnSeconds((long)(time(NULL)-start)); fputs(clearEOL(),stderr); fputs("\n",stderr); return seqNames;
+  }
+  fprintf(stderr,"\rGenome scan complete");
+  prnSeconds((long)(time(NULL)-start));
+  fputs(clearEOL(),stderr);
+  fputs("\n",stderr);
+  return seqNames;
 }
 
-void output_genome_segment(FILE *f,int targetRenumberedSeqNo,b32 baseStart,int nBases,FILE *out) {
+void output_genome_segment(FILE *f,int targetRenumberedSeqNo,b32 baseStart,int nBases,FILE *out,int ignoreVars) {
   /* Cut-down version of go_through_genome for use in reports */
   int byteSwap=0; long seqPtr=0;
   rewind(f);
@@ -299,7 +310,7 @@ void output_genome_segment(FILE *f,int targetRenumberedSeqNo,b32 baseStart,int n
   for(seqNo=0;seqNo<nSeq;seqNo++) {
     int isVariant,renumberedSeqNo=0;
     b32 *allUnknownStart=0,*allUnknownLen=0, nb0;
-    if(read_2bit_nBases(f,byteSwap,&seqPtr,&allUnknownStart,&allUnknownLen,&nb0,&isVariant)) {
+    if(read_2bit_nBases(f,byteSwap,&seqPtr,&allUnknownStart,&allUnknownLen,&nb0,&isVariant,ignoreVars)) {
     free(allUnknownStart); free(allUnknownLen);
     if (!isVariant && ((renumberedSeqNo = seqsDone++) == targetRenumberedSeqNo)) {
       fseek(f,--baseStart/4,SEEK_CUR); // 1st is 0 not 1

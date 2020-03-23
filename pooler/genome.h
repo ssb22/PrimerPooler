@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.61 (c) 2016-19 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.7 (c) 2016-20 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -12,5 +12,5 @@
 */
 typedef uint32_t b32;
 typedef char SeqName[256];
-SeqName* go_through_genome(FILE *f);
-void output_genome_segment(FILE *f,int targetRenumberedSeqNo,b32 baseStart,int nBases,FILE *out);
+SeqName* go_through_genome(FILE *f,int ignoreVars);
+void output_genome_segment(FILE *f,int targetRenumberedSeqNo,b32 baseStart,int nBases,FILE *out,int ignoreVars);

@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.61 (c) 2016-19 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.7 (c) 2016-20 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -11,6 +11,7 @@
 # Public License for more details.
 */
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -256,6 +257,16 @@ static char* getReportFilename() {
   }
   return reportFilename;
 }
+static void fputs2(char *s,FILE *reportFile) {
+  fputs(s,stderr);
+  if(reportFile) fputs(s,reportFile);
+}
+static void fprintf2(FILE *reportFile,char *s,...) {
+  va_list v; va_start(v,s);
+  vfprintf(stderr,s,v);
+  if(reportFile) vfprintf(reportFile,s,v);
+  va_end(v);
+}
 static FILE* checkPF(int nPrimers) {
   qsort(primerVariantsToFind,nPrimerVariantsToFind,sizeof(PrimerToFind),PF_by_didFind);
   FILE *reportFile = NULL;
@@ -269,27 +280,28 @@ static FILE* checkPF(int nPrimers) {
   for(i=0; i<nPrimerVariantsToFind; i++) {
     if(!didFind[primerVariantsToFind[i].primerNo]) {
       if(!reported) {
-        reported = 1; fputs("The following primers were not found in the genome:\n",stderr);
+        reported = 1;
         reportFile = fopen(getReportFilename(),"w");
-        if(reportFile) fputs("The following primers were not found in the genome:\n",reportFile);
+        fputs2("The following primers were not found in the genome:\n",reportFile);
+        extern int variants_skipped; // genome.c
+        if (variants_skipped) {
+          fprintf2(reportFile, "\n(Note: %d sequences NOT SCANNED because their names looked like variants.\n- or _ in sequence names means variant chromosomes in hg38, which we ignore.\nChange your genome's sequence names if that's a problem.)\n\n", variants_skipped); // TODO: option to scan variants anyway
+        }
         /* Previously reported number found more than once
            as well, but this turned out not to be useful
            because some primers can occur frequently but
            not in their amplicons.  We could make didFind
            boolean rather than a counter. */
       }
-      fprintf(stderr,"%s\n",primerVariantsToFind[i].name);
-      if(reportFile) fprintf(reportFile,"%s\n",primerVariantsToFind[i].name);
+      fprintf2(reportFile,"%s\n",primerVariantsToFind[i].name);
       didFind[primerVariantsToFind[i].primerNo] = 1; /* so we don't report this one a second time (as multiple entries in primerVariantsToFind map to the same primerNo) */
     }
   }
   #endif
   if (nFound == nPrimers) {
-  fprintf(stderr,"All %d primers were found in the genome\n",nPrimers);
-  if(reportFile) fprintf(reportFile,"All %d primers were found in the genome\n",nPrimers);
+  fprintf2(reportFile,"All %d primers were found in the genome\n",nPrimers);
   } else {
-  fprintf(stderr,"%d of %d primers were found in the genome\n",nFound,nPrimers);
-  if(reportFile) fprintf(reportFile,"%d of %d primers were found in the genome\n",nFound,nPrimers);
+    fprintf2(reportFile,"%d of %d primers were found in the genome\n",nFound,nPrimers);
   }
   return reportFile;
 }
@@ -327,8 +339,9 @@ static int findEndEvent(int seq,int startEvent,int maxAmpliconLen) {
 static inline void checkOverlaps(int ampNo,int nAmp,char *overlaps,int *inProgress,int *inProgressI,int *nOverlaps,FILE* *reportFileP,AmpEvent *events,int i,int end,SeqName *names,int seqNo,int strand,int maxAmpliconLen) {
   int prnOver=0, j;
   if (i==end) {
-    SetColour(Bright,Blue,Black); fprintf(stderr,"Found alternative product involving non-unique primer %s (%s:%u%c%u), treating as overlap\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[i].baseEnd); ResetColour();
-    if(*reportFileP) fprintf(*reportFileP,"WARNING: Found alternative product involving non-unique primer %s (%s:%u%c%u), treating as overlap\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[i].baseEnd);
+    SetColour(Bright,Blue,Black);
+    fprintf2(*reportFileP,"WARNING: Found alternative product involving non-unique primer %s (%s:%u%c%u), treating as overlap\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[i].baseEnd);
+    ResetColour();
   }
   for(j=0; j<nAmp; j++)
     if(j!=ampNo && (inProgress[j]/* EITHER strand, as per versions prior to 1.6; Version 1.6 also checked strand but this is incorrect as the complement will be amplified too; f ixed in Version 6.1 released a few hours later 2019-06-15 Sat. */) && !overlaps[ampNo*nAmp+j]) {
@@ -336,27 +349,21 @@ static inline void checkOverlaps(int ampNo,int nAmp,char *overlaps,int *inProgre
         overlaps[j*nAmp+ampNo] = 1;
       if(prnOver) fputs(", ",stderr); else {
         if(!*nOverlaps) {
-          fputs("Overlapping amplicons:\n",stderr);
           if(!*reportFileP) *reportFileP = fopen(getReportFilename(),"w");
-          if(*reportFileP) fputs("Overlapping amplicons:\n",*reportFileP);
+          fputs2("Overlapping amplicons:\n",*reportFileP);
         }
         /* print the "new" amplicon first */
-        fprintf(stderr,"%s:%s (%s:%u%c%u) / ",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[end].baseEnd);
-        if(*reportFileP) fprintf(*reportFileP,"%s:%s (%s:%u%c%u) / ",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[end].baseEnd);
+        fprintf2(*reportFileP,"%s:%s (%s:%u%c%u) / ",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[end].baseEnd);
         prnOver=1;
       }
       (*nOverlaps)++;
       /* print the amplicon it's overlapping with: */
       AmpEvent *overlapWithStart = events+inProgressI[j], *overlapWithEnd = events+findEndEvent(seqNo,inProgressI[j],maxAmpliconLen);
-      fprintf(stderr,"%s:%s (%u%c%u)",overlapWithStart->name,overlapWithEnd->name,overlapWithStart->baseStart,((overlapWithStart->onOrOff_and_Strand==1)?'+':'-'),overlapWithEnd->baseEnd);
-      if(*reportFileP) fprintf(*reportFileP,"%s:%s (%u%c%u)",overlapWithStart->name,overlapWithEnd->name,overlapWithStart->baseStart,((overlapWithStart->onOrOff_and_Strand==1)?'+':'-'),overlapWithEnd->baseEnd);
+      fprintf2(*reportFileP,"%s:%s (%u%c%u)",overlapWithStart->name,overlapWithEnd->name,overlapWithStart->baseStart,((overlapWithStart->onOrOff_and_Strand==1)?'+':'-'),overlapWithEnd->baseEnd);
     }
-  if(prnOver) {
-    fputs("\n",stderr);
-    if(*reportFileP) fputs("\n",*reportFileP);
-  }
+  if(prnOver) fputs2("\n",*reportFileP);
 }
-static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *reportFileP,AllPrimers ap,const int *ampliconNoToFwd,const int *ampliconNoToRev,FILE *allAmps,int allAmpsIsMultiPLX,FILE *genome) {
+static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *reportFileP,AllPrimers ap,const int *ampliconNoToFwd,const int *ampliconNoToRev,FILE *allAmps,int allAmpsIsMultiPLX,FILE *genome,int ignoreVars) {
   char *ampsFound=calloc(1,nAmp);
   char *overlaps=calloc(nAmp,nAmp); /* TODO: use triangle.h instead? */
   int* inProgress=malloc(nAmp*sizeof(int));
@@ -385,8 +392,9 @@ static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *
       }
     } else if(inProgress[ampNo] & onOrOff_and_Strand) {
       /* duplicate start ?? */
-      SetColour(Bright,Blue,Black); fprintf(stderr,"Ambiguous product start involving non-unique primer %s (%s:%u%c%u)\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((onOrOff_and_Strand==1)?'+':'-'),events[i].baseEnd); ResetColour();
-      if(*reportFileP) fprintf(*reportFileP,"Ambiguous product start involving non-unique primer %s (%s:%u%c%u)\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((onOrOff_and_Strand==1)?'+':'-'),events[i].baseEnd);
+      SetColour(Bright,Blue,Black);
+      fprintf2(*reportFileP,"Ambiguous product start involving non-unique primer %s (%s:%u%c%u)\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((onOrOff_and_Strand==1)?'+':'-'),events[i].baseEnd);
+      ResetColour();
     } else { /* start */
       int end=findEndEvent(seqNo,i,maxAmpliconLen);
       if(!end) { /* added in v1.6, isolated start  */
@@ -409,7 +417,7 @@ static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *
           fputc('\t',allAmps);
           printBasesMaybeD(ap,ampliconNoToRev[events[i].ampNo],allAmps);
           fputc('\t',allAmps);
-          output_genome_segment(genome,seqNo,events[i].baseStart,ampLength,allAmps);
+          output_genome_segment(genome,seqNo,events[i].baseStart,ampLength,allAmps,ignoreVars);
           fputc('\n',allAmps);
         } else fprintf(allAmps,"%s:%s (%s:%u%c%u)\n",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((onOrOff_and_Strand==1)?'+':'-'),events[end].baseEnd);
       }
@@ -421,28 +429,30 @@ static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *
   for(i=0; i<nAmp; i++)
     if(!ampsFound[i]) {
       if(!numNotFound) {
-        SetColour(Bright,Red,Black); fprintf(stderr,"Amplicons not found in genome:\n"); ResetColour();
-        if(*reportFileP) fprintf(*reportFileP,"Amplicons not found in genome:\n");
+        SetColour(Bright,Red,Black);
+        fprintf2(*reportFileP,"Amplicons not found in genome:\n");
+        ResetColour();
       }
       numNotFound++;
       #ifdef Debug_AmpliconNo
       if(!Debug_AmpliconNo(i)) continue; /* don't let these get lost in the others */
       #endif
-      fprintf(stderr,"%s/%s\n",ap.names[ampliconNoToFwd[i]],ap.names[ampliconNoToRev[i]]);
-      if(*reportFileP) fprintf(*reportFileP,"%s/%s\n",ap.names[ampliconNoToFwd[i]],ap.names[ampliconNoToRev[i]]);
+      fprintf2(*reportFileP,"%s/%s\n",ap.names[ampliconNoToFwd[i]],ap.names[ampliconNoToRev[i]]);
     }
   if(numNotFound) {
-    SetColour(Bright,Red,Black); fprintf(stderr,maxAmpliconLen?"%d of %d amplicons not found in genome (with length <=%d)\n":"%d of %d amplicons not found in genome\n",numNotFound,nAmp,maxAmpliconLen); ResetColour();
-    if(*reportFileP) fprintf(*reportFileP,maxAmpliconLen?"%d of %d amplicons not found in genome (with length <=%d)\n":"%d of %d amplicons not found in genome\n",numNotFound,nAmp,maxAmpliconLen);
+    SetColour(Bright,Red,Black);
+    fprintf2(*reportFileP,maxAmpliconLen?"%d of %d amplicons not found in genome (with length <=%d)\n":"%d of %d amplicons not found in genome\n",numNotFound,nAmp,maxAmpliconLen);
+    ResetColour();
   } else { SetColour(Dark,Green,Black); fputs("All amplicons were found in the genome\n",stderr); ResetColour(); } free(ampsFound);
   fprintf(stderr,"Longest amplicon found: %d bp\n",maxLenFound);
   if(maxLenFound >= 100000 /* 50000 was longest on record and very difficult to achieve */) fprintf(stderr,"  - this might include coincidental matches on other chromosomes;\n    try setting a sensible --amp-max\n"); /* relevant only if we're running on --amp-max=0 (v1.35+) */
-  SetColour(Bright,Cyan,Black); fprintf(stderr,"%d overlaps found\n",nOverlaps); ResetColour();
-  if(*reportFileP) fprintf(*reportFileP,"%d overlaps found\n",nOverlaps);
+  SetColour(Bright,Cyan,Black);
+  fprintf2(*reportFileP,"%d overlaps found\n",nOverlaps);
+  ResetColour();
   free(inProgress); free(inProgressI); return overlaps;
 }
 
-char* GetOverlappingAmplicons(AllPrimers ap,FILE *genome,int* *primerNoToAmpliconNo,int *nAmplicons,int maxAmpliconLen,FILE *allAmps,int allAmpsIsMultiPLX) {
+char* GetOverlappingAmplicons(AllPrimers ap,FILE *genome,int* *primerNoToAmpliconNo,int *nAmplicons,int maxAmpliconLen,FILE *allAmps,int allAmpsIsMultiPLX,int ignoreVars) {
   int *ampliconNoToFwd,*ampliconNoToRev;
   time_t start = time(NULL);
   int nAmp = amplicons_from_primer_names(ap,primerNoToAmpliconNo,&ampliconNoToFwd,&ampliconNoToRev);
@@ -451,15 +461,15 @@ char* GetOverlappingAmplicons(AllPrimers ap,FILE *genome,int* *primerNoToAmplico
     primerVariantsToFind = populatePF(ap,ampliconNoToFwd,ampliconNoToRev,nAmp,&nPrimerVariantsToFind);
     didFind=calloc(ap.np,sizeof(int));
     if(memFail(didFind,primerVariantsToFind,*primerNoToAmpliconNo,ampliconNoToFwd,ampliconNoToRev,_memFail)) return NULL;
-    SeqName *names=go_through_genome(genome);
+    SeqName *names=go_through_genome(genome,ignoreVars);
     FILE *reportFile = checkPF(ap.np);
     int found_primer_problems = (reportFile != NULL);
-    overlaps = eventsToOverlaps(nAmp,maxAmpliconLen,names,&reportFile,ap,ampliconNoToFwd,ampliconNoToRev,allAmps,allAmpsIsMultiPLX,genome);
+    overlaps = eventsToOverlaps(nAmp,maxAmpliconLen,names,&reportFile,ap,ampliconNoToFwd,ampliconNoToRev,allAmps,allAmpsIsMultiPLX,genome,ignoreVars);
     if(reportFile) {
       fclose(reportFile);
       fprintf(stderr,"This report has also been written to %s",reportFilename);
       /* and re-print the time in case they didn't see it above (long overlap list) */ prnSeconds((long)(time(NULL)-start)); fputs("\n",stderr);
-      if(found_primer_problems) { SetColour(Bright,White,Red); fputs("SOME PRIMERS WERE NOT FOUND: see start of the above.\n",stderr); ResetColour(); fputs("Possible causes:\n  - Mistakes in the primer file?\n  - Wrong reference genome?\n  - Trying to use mRNA primers on a complete genome?\n    (If using mRNA, you'll need an exon-only version of the genome)\n",stderr); }
+      if(found_primer_problems) { SetColour(Bright,White,Red); fputs("SOME PRIMERS WERE NOT FOUND: see start of the above.\n",stderr); ResetColour(); fputs("Possible causes:\n  - Mistakes in the primer file?\n  - Wrong reference genome?\n  - Reference genome sequence names contain _ or - (hg38 'variant' names)?\n  - Trying to use mRNA primers on a complete genome?\n    (If using mRNA, you'll need an exon-only version of the genome)\n",stderr); }
       #ifndef Debug_ChromosomeCheck
       else { SetColour(Dark,Green,Black); fputs("(All primers were found in the genome.)\n",stderr); ResetColour(); }
       /* (not necessarily if we skipped the fopen because of Debug_ChromosomeCheck) */

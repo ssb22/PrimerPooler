@@ -118,7 +118,7 @@ To obtain a .2bit file from UCSC:
 
 4. Scroll down to the links, and choose the one that ends `.2bit` (e.g. [hg38.2bit](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.2bit))
 
-Primer Pooler will then ask for a maximum amplicon length (in base pairs): this is the maximum length of the _product_—the number does _not_ include the length of any tag sequences you have added to the primers. Then it will scan through the genome data to detect where your amplicons start and finish, and which ones overlap.
+Primer Pooler will then ask "Do you want me to ignore variant chromosomes i.e. sequences with `_` or `-` in their names?" (you'll probably want to answer Yes if you're using hg38.2bit), and will then ask for a maximum amplicon length (in base pairs): this is the maximum length of the _product_—the number does _not_ include the length of any tag sequences you have added to the primers. Then it will scan through the genome data to detect where your amplicons start and finish, and which ones overlap.
 
 * After the overlap scan is complete, Primer Pooler will then have enough data to write an input file for MultiPLX if you wish to run that software as well for comparison. If you decline this, it will ask if you want it to write a simple text file with the locations of all amplicons, which you may accept or decline.
 
@@ -208,6 +208,9 @@ Processing options should be placed before this filename. Options are as follows
 `--genome=PATH`
 : Check the amplicons for overlaps in the genome, and avoid these overlaps during pooling. The genome file may be in .2bit format as supplied by UCSC, or in .fa (FASTA) format.
 
+`--scan-variants`
+: When searching for amplicons in a genome file, scan variant sequences in that file too, i.e. sequences with `_` and `-` in their names.  By default such sequences are omitted as they're not normally needed if using hg38.
+
 `--amp-max=LENGTH`
 : Sets maximum amplicon length for the overlap check. The default is 220.
 
@@ -245,7 +248,9 @@ Version 1.4 allows tags to be changed part-way through a FASTA file. For example
 
 Version 1.5 allows primer sets to be “fixed” to predetermined pools by specifying these as primer name prefixes, e.g. `>@2:myPrimer-F` fixes `myPrimer-F` to pool 2.
 
-Version 1.6 detects and warns about alternative products of non-unique PCR.
+Version 1.6 detects and warns about alternative products of non-unique PCR.  It was followed within hours by Version 1.61 which fixed a regression in the amplicon overlap check.
+
+Version 1.7 makes the ignoring of variant sequences in the genome optional, and warns if primers not being found might be due to variant sequences having been ignored.
 
 Glossary
 --------
