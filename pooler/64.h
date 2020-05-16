@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.7 (c) 2016-20 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.71 (c) 2016-20 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -591,7 +591,7 @@ static int pCounts64(const MaybeDegeneratePrimer64 *forward,const MaybeDegenerat
   int first = 1;
   for(i=0; i<=maxS; i++)
     fprintf(stderr,"%s%d\t%d",first?((first=0),""):"\n",i,counts[i]);
-  if(other) fprintf(stderr,"%sOverlaps\t%d",first?((first=0),""):"\n",other);
+  if(other) fprintf(stderr,"%sOverlaps\t%d",first?"":"\n",other);
   return other;
 }
 static void printBonds64(const MaybeDegeneratePrimer64 *forward,const MaybeDegeneratePrimer64 *backward,int np,FILE *f,int threshold,char* *names,const int *pools) {
@@ -862,7 +862,7 @@ static int dGpCounts64(int np,const int *pools,const int *precalcScores,FILE *f)
       fprintf(f,"%s%.3g\t%d",first?((first=0),""):"\n",((float)(-i))/2.0,counts[i]);
     }
   int other=counts[0x4000]; free(counts);
-  if(other) fprintf(f,"%sOverlaps\t%d",first?((first=0),""):"\n",other);
+  if(other) fprintf(f,"%sOverlaps\t%d",first?"":"\n",other);
   if(f!=stdout && f!=stderr) fclose(f);
   return other;
 }

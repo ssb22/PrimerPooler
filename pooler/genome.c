@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.7 (c) 2016-20 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.71 (c) 2016-20 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -163,8 +163,10 @@ static SeqName* fasta_genome(FILE *f,int ignoreVars) {
       continue;
     }
     fprintf(stderr,"%s\n",lastSequenceNameRead);
+    SeqName *lastSeqNames = seqNames;
     seqNames = realloc(seqNames,(seqNo+1)*sizeof(SeqName));
     if(!seqNames || allocateAnotherSeq(seqNo+1)==seqNo) {
+      free(lastSeqNames);
       fprintf(stderr,"Genome metadata: Out of memory!\n"); break;
     }
     wrapped_memcpy(seqNames[seqNo],lastSequenceNameRead,sizeof(SeqName));
@@ -308,11 +310,11 @@ void output_genome_segment(FILE *f,int targetRenumberedSeqNo,b32 baseStart,int n
   int nSeq=read_2bit_nSeqs(f,&byteSwap,&seqPtr);
   int seqsDone = 0, seqNo;
   for(seqNo=0;seqNo<nSeq;seqNo++) {
-    int isVariant,renumberedSeqNo=0;
+    int isVariant;
     b32 *allUnknownStart=0,*allUnknownLen=0, nb0;
     if(read_2bit_nBases(f,byteSwap,&seqPtr,&allUnknownStart,&allUnknownLen,&nb0,&isVariant,ignoreVars)) {
     free(allUnknownStart); free(allUnknownLen);
-    if (!isVariant && ((renumberedSeqNo = seqsDone++) == targetRenumberedSeqNo)) {
+    if (!isVariant && (seqsDone++ == targetRenumberedSeqNo)) {
       fseek(f,--baseStart/4,SEEK_CUR); // 1st is 0 not 1
       int shift = 2*(baseStart & 3);
       int mask = (128|64) >> shift; shift = 6 - shift;

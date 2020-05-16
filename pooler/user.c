@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.7 (c) 2016-20 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.71 (c) 2016-20 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -518,7 +518,7 @@ int main(int argc, char *argv[]) {
             printf("Computer suggestion is %d pools.\nYou can go with this, or you can pick your own number.\n",suggest_num_pools(ap,cache,table));
             do {
               int nPools = getNum("How many pools? ",0);
-              if(nPools<=1) { puts("Cannot divide into less than 2 pools."); continue; }
+              if(nPools<=1) { puts("Cannot divide into fewer than 2 pools."); continue; }
               else if(nPools<cache.fix_min_pools) { printf("Must be at least %d pools, because you have primers with names starting @%d:\n",cache.fix_min_pools,cache.fix_min_pools); continue; }
               int average = 2*averagePairsRoundUp(ap.np,nPools); /* important to round UP, for the getNum below */
               puts("Setting a maximum size of each pool can make the pools more even.");
@@ -679,6 +679,10 @@ int main(int argc, char *argv[]) {
           fputs("Can't do that: --max-count is too low!\n",stderr); suggestMax(numPools,average,ap.np);
           exit(1); /* no need to free memory */
         }
+      }
+      if(numPools==1) { /* we don't want "division by zero" in pool-split.c */
+        fputs("Cannot divide into fewer than 2 pools\n",stderr);
+        exit(1); /* no need to free memory */
       }
       int nAmplicons=0; char *overlappingAmplicons=NULL; int *primerNoToAmpliconNo=NULL;
       if(genomeFile)

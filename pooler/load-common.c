@@ -1,5 +1,5 @@
 /*
-# This file is part of Primer Pooler v1.7 (c) 2016-20 Silas S. Brown.  For Wen.
+# This file is part of Primer Pooler v1.71 (c) 2016-20 Silas S. Brown.  For Wen.
 # 
 # This program is free software; you can redistribute and
 # modify it under the terms of the General Public License
@@ -61,7 +61,8 @@ int numPrimers(const char *fileData, int *maxLen,int *numTags) {
   if(!r) { fputs("No sequences found in this file\n",stderr); return -1; }
   fprintf(stderr,"%d primers + %d tags\nShortest primer length is %d bases; longest is %d\n",r,*numTags,minL,maxL);
   if(maxTag) {
-    minL+=maxTag; maxL+=maxTag;
+    // minL+=maxTag; // not needed as we won't be using minL again
+    maxL+=maxTag;
     fprintf(stderr,"(max tag length is %d, so max tagged primer length is %d)\n",maxTag,maxL); // TODO: longest *actual* tagged primer length might depend on *which* tag is added to which primer; would need more accounting if want to report that here, but this should be OK for allocation purposes except in the extremely rare case where this maxL exceeds checkLenLimit below but would not do so if accounted more carefully
   }
   int checkLenLimit(int maxLen); // bit-common.c
