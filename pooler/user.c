@@ -42,7 +42,12 @@ void getAns(const char *qu, char *buf,size_t size) {
 #ifdef __linux__
       if(!workedBefore) {
         /* Probably we were launched by a graphical
-           desktop that didn't give us a terminal. */
+           desktop that didn't give us a terminal.
+           
+           (Windows and Mac automatically start a terminal
+           if we're launched via the graphical desktop,
+           but not all GNU/Linux graphical desktops do so)
+        */
         puts("Early EOF on stdin: assuming a launcher problem.\nTrying to run argv[0] in a terminal.");
         /* 1. Try to run in lxterminal.  Care is needed
            if any part of argv0 contains a space etc, as
@@ -362,7 +367,11 @@ static float getKelvin0(const char *qu) {
     if (!tried_F && getYN("Seriously, Fahrenheit? (y/n): ")) return F_to_kelvin(r);
     if (!tried_K && getYN("Kelvin?? (y/n): ")) return r;
     if (!tried_R && getYN("Rankine?? (y/n): ")) return R_to_kelvin(r);
-    if(getYN("Randall Munroe's joke 'Felsius' unit??? (y/n): ")) return E_to_kelvin(r);
+    if(getYN("Reaumur?? (y/n): ")) return C_to_kelvin(r*1.25);
+    if(getYN("Romer?? (y/n): ")) return C_to_kelvin((r-7.5)*40/21);
+    if(getYN("Delisle?? (y/n): ")) return C_to_kelvin(100-r*2/3);
+    if(getYN("Average translational kinetic energy of a gas in zeptojoules?? (y/n): ")) return r*2/3/.01380649;
+    if(getYN("Randall Munroe's joke 'Felsius' unit??? (y/n): ")) return C_to_kelvin((r-16.0)*5.0/7.0);
     puts("I give up.  You'll have to pick a unit that I know.");
   }
 }

@@ -19,6 +19,7 @@ mac-portable: 128.h 32.h 32-64.h copyright.h
 # gcc lacks OpenMP (although 10.7's has it); 10.9 will
 # therefore compile only the single-core version.
 # TODO: check for a Homebrew-installed gcc-6 & use that?)
+# TODO: what happens when ARM Macs come out?  Rosetta 1 (PowerPC to IA32) performance was 60%-80% of native; don't yet know about Rosetta 2
 
 win-crosscompile: pooler.exe pooler64.exe
 .PHONY: unix mac-portable win-crosscompile mingw publish
