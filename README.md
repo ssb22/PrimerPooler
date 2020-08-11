@@ -26,6 +26,9 @@ Primer Pooler can:
 
 If your CPU is modern enough to have them, Primer Pooler will take advantage of 64-bit registers and multiple cores. But it also runs on older equipment.
 
+Please note that Primer Pooler **does not design primers by itself.**  You must choose your primers first, whether by using NCBI's [Primer BLAST](https://www.ncbi.nlm.nih.gov/tools/primer-blast/index.cgi) or any other method of your choice.  Once you have your primers, Primer&nbsp;Pooler can partition them into pools.</div>
+
+
 Compiling from source
 ---------------------
 
@@ -435,6 +438,8 @@ Copyright and Trademarks
 ========================
 
 All material © Silas S. Brown unless otherwise stated.  Licenses as stated above.
+
+* BLAST is a registered trademark of the National Library of Medicine.
 
 * Javascript is a trademark of Oracle Corporation in the US.
 
