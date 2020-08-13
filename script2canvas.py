@@ -7,6 +7,13 @@
 # License: MIT as per the modified DOStoy we include (see below)
 
 # use: script -t log2 2>log1 (GNU/Linux, not BSD/Mac as it doesn't log the timing)
+
+# Where to find history:
+# on GitHub at https://github.com/ssb22/PrimerPooler
+# and on GitLab at https://gitlab.com/ssb22/PrimerPooler
+# and on BitBucket https://bitbucket.org/ssb22/primerpooler
+# and at https://gitlab.developers.cam.ac.uk/ssb22/PrimerPooler
+
 timingFile = open("log1")
 outputFile = open("log2")
 
