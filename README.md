@@ -76,7 +76,7 @@ Do you want to use deltaG? (y/n):
 * If you opt for deltaG, the following questions will be asked:
 
 Temperature:
-: Enter a number (decimal fractions are allowed). You can enter it in Celsius, Kelvin, Fahrenheit or Rankine. Do not enter the suffix C or K or F or R—Primer Pooler will determine for itself which unit was meant, and ask you to confirm.
+: Enter a number (decimal fractions are allowed). You can enter it in Celsius, Kelvin, Fahrenheit or Rankine. Do not enter the suffix C or K or F or R—Primer Pooler will determine for itself which unit was meant, and ask you to confirm. (Recent versions of Primer Pooler offer 5 additional obscure temperature scales if you decline all of the more probable ones.)
 
 Magnesium concentration in mM (0 for no correction):
 : Enter your concentration of magnesium in nanomoles per cubic metre (decimal fractions are allowed). Enter 0 if you don’t mind the deltaG figures not being corrected for magnesium concentration.
