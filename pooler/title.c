@@ -1,19 +1,22 @@
 /*
-# This file is part of Primer Pooler v1.71 (c) 2016-20 Silas S. Brown.  For Wen.
-# 
-# This program is free software; you can redistribute and
-# modify it under the terms of the General Public License
-# as published by the Free Software Foundation; either
-# version 3 of the License, or any later version.
-#
-# This program is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY.  See the GNU General
-# Public License for more details.
+This file is part of Primer Pooler (c) Silas S. Brown.  For Wen.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 #include <stdio.h>
 #include <string.h>
 #include "ansi.h"
-#include "copyright.h"
+#include "version.h"
 void printTitle() {
 #if __LP64__
 #define CpuBits "64"
@@ -37,9 +40,7 @@ void printTitle() {
 #define CoreType "single-core"
 #define ExtraLine2 "You might wish to update your compiler if you want the multi-core version.\n"
 #endif
-  char title[80];
-  snprintf(title,sizeof(title),"%.*s" CpuBits "-bit " CoreType,(int)(strchr(copyright,'(')-copyright),copyright);
-  ConsoleTitle(title);
-  SetBold(); fputs(copyright,stderr); ResetColour();
-  fprintf(stderr,"\nCompiled on " __DATE__ " for " CpuBits "-bit " CoreType " CPUs.\n" ExtraLine1 ExtraLine2 "\n");
+  ConsoleTitle(Program_Version " " CpuBits "-bit " CoreType);
+  SetBold(); fputs(Program_Version " " Program_Copyright,stderr); ResetColour();
+  fprintf(stderr,"\nNow licensed under the Apache License, Version 2.0\nCompiled on " __DATE__ " for " CpuBits "-bit " CoreType " CPUs.\n" ExtraLine1 ExtraLine2 "\n");
 }

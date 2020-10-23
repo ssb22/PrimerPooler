@@ -13,9 +13,5 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-int _memFail(void *first,...);
-#define memFail(...) _memFail(__FILE__, __LINE__, __VA_ARGS__)
-static inline void* memTrim(void *p,void *top) {
-  void *r = realloc(p,top-p);
-  return r ? r : p;
-}
+#define Program_Version "Primer Pooler v1.72"
+#define Program_Copyright "(c) 2016-20 Silas S. Brown.  For Wen."
