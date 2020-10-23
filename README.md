@@ -26,7 +26,7 @@ Primer Pooler can:
 
 If your CPU is modern enough to have them, Primer Pooler will take advantage of 64-bit registers and multiple cores. But it also runs on older equipment.
 
-Please note that Primer Pooler **does not design primers by itself.**  You must choose your primers first, whether by using NCBI's [Primer BLAST](https://www.ncbi.nlm.nih.gov/tools/primer-blast/index.cgi) or any other method of your choice.  Once you have your primers, Primer&nbsp;Pooler can partition them into pools.
+Please note that Primer Pooler **does not design primers by itself.**  You must choose your primers first, whether by using NCBI's [Primer BLAST](https://www.ncbi.nlm.nih.gov/tools/primer-blast/index.cgi) or any other method of your choice.  Once you have your primers, Primer&nbsp;Pooler can partition them into pools.</div>
 
 
 Compiling from source
@@ -255,8 +255,6 @@ Version 1.6 detects and warns about alternative products of non-unique PCR.  It
 
 Version 1.7 makes the ignoring of variant sequences in the genome optional, and warns if primers not being found might be due to variant sequences having been ignored.
 
-Version 1.72 changes the license to Apache 2.0.
-
 Glossary
 --------
 
@@ -386,11 +384,8 @@ I’ve lost track of how many giants I’ve stood on the shoulders of for this, 
 License
 -------
 
-Primer Pooler is free software, now licensed under the Apache License, version 2.0.
-Prior to v1.72 it was licensed under the GNU General Public License,
-version 3 or later; the new Apache 2 license is still GPL-compatible but with
-added permissions to make it more acceptable in laboratories with blanket legal
-policies against GPL'd code.
+Primer Pooler is free software licensed under the GNU General Public License, version 3 or later.
+(Contact me if you need a different license.)
 
 Typescript player for HTML5
 ===========================
