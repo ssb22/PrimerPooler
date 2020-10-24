@@ -370,6 +370,15 @@ PrimerPooler: automated primer pooling to prepare library for targeted sequencin
 Biology Methods and Protocols. Oxford University Press. 2(1).
 doi:[10.1093/biomethods/bpx006](http://doi.org/10.1093/biomethods/bpx006)
 
+License
+-------
+
+Primer Pooler is free software, now licensed under the Apache License, version 2.0.
+Prior to v1.72 it was licensed under the GNU General Public License,
+version 3 or later; the new Apache 2 license is still GPL-compatible but with
+added permissions to make it more acceptable in laboratories with blanket legal
+policies against GPL'd code.
+
 Thanks
 ------
 
@@ -382,15 +391,6 @@ I’ve lost track of how many giants I’ve stood on the shoulders of for this, 
 * Richard Stallman and his Free Software Foundation for their legal research, C compiler, editor and debugger;
 
 * my wife Yun-Wen, who needed this for her cancer-research project, provided test data and feedback, and put up with all my silly questions.
-
-License
--------
-
-Primer Pooler is free software, now licensed under the Apache License, version 2.0.
-Prior to v1.72 it was licensed under the GNU General Public License,
-version 3 or later; the new Apache 2 license is still GPL-compatible but with
-added permissions to make it more acceptable in laboratories with blanket legal
-policies against GPL'd code.
 
 Typescript player for HTML5
 ===========================
