@@ -515,7 +515,7 @@ int main(int argc, char *argv[]) {
           if(getYN("Shall I split this into pools for you? (y/n): ")) {
             int nAmplicons=0; char *overlappingAmplicons=NULL; int *primerNoToAmpliconNo=NULL;
             if(getYN("Shall I check the amplicons for overlaps in the genome? (y/n): ")) {
-              puts("OK, I need to see a genome file in .2bit or .fa format.\n(I'll ignore .)");
+              puts("OK, I need to see a genome file in .2bit or .fa format.");
               FILE *f=getFile("File name: ","rb","hg38.2bit","http://hgdownload.cse.ucsc.edu/downloads.html"); // if human-specific, http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/
               int ignoreVars = getYN("Do you want me to ignore variant chromosomes\ni.e. sequences with _ or - in their names? (y/n): ");
               puts("Please enter the maximum amplicon length (bp), for example 220\n"); // bp = base pairs
