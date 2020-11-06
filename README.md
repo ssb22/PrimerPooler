@@ -444,6 +444,8 @@ Copyright and Trademarks
 
 All material © Silas S. Brown unless otherwise stated.  Licenses as stated above.
 
+* Apache is a registered trademark of The Apache Software Foundation.
+
 * BLAST is a registered trademark of the National Library of Medicine.
 
 * Javascript is a trademark of Oracle Corporation in the US.
