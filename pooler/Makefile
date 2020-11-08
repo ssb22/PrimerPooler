@@ -95,6 +95,8 @@ upx:
 	upx --best *.exe
 
 # make publish M="commit message goes here"
+# (or if only comments etc changed & no recompile,
+# make publish-src M="commit message goes here" )
 publish: mac-portable test-other
 	rm -f pooler.zip
 	vagrant up # x86-64 MingW not installed locally:
@@ -105,3 +107,13 @@ publish: mac-portable test-other
 	vagrant halt
 	scp pooler.zip pooler.exe pooler64.exe pooler.tgz ds:homepage/pooler/
 	ssh ds 'CommitMsg_PrimerPooler="$(M)" homepage/update'
+publish-src: test-other
+	make pooler.tgz
+	scp pooler.tgz ds:homepage/pooler/
+	ssh ds 'CommitMsg_PrimerPooler="$(M)" homepage/update'
+
+# compatibility with bsd.port.mk:
+all: unix
+install: all
+	cp pooler $(PREFIX)/bin/
+PREFIX=/usr/local
