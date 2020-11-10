@@ -113,7 +113,9 @@ publish-src: test-other
 	ssh ds 'CommitMsg_PrimerPooler="$(M)" homepage/update'
 
 # compatibility with bsd.port.mk:
-all: unix
+pooler: unix
+all: pooler
 install: all
-	cp pooler $(PREFIX)/bin/
-PREFIX=/usr/local
+	$(INSTALL_PROGRAM) pooler $(DESTDIR)/$(PREFIX)/bin/
+PREFIX?=usr/local
+INSTALL_PROGRAM?=cp

@@ -1,0 +1,26 @@
+This is a program I wrote for cancer researchers and others who want to use
+Multiplex PCR to study DNA samples, and wish to optimise their combinations of
+primers to minimise the formation of dimers.
+
+Primer Pooler can:
+
+* Check through each proposed pool for combinations that are likely to form
+  dimers,
+
+* Automatically move prospective amplicons between proposed pools to reduce
+  dimer formation,
+
+* Automatically search the genome sequence to find which amplicons overlap, and
+  place their corresponding primers in separate pools,
+
+* Optionally keep pool sizes within a specified range,
+
+* Handle thousands of primers without being slow (useful for high-throughput
+  sequencing applications),
+
+* Do all of the above with degenerate primers too.
+
+If your CPU is modern enough to have them, Primer Pooler will take advantage of
+64-bit registers and multiple cores. But it also runs on older equipment.
+
+WWW: http://ssb22.user.srcf.net/pooler/
