@@ -64,7 +64,7 @@ static inline int dGbucket(float dG,int max) {
 int checkLenLimit(int maxLen) { /* return 0 if OK */
   if(maxLen>PrimerLimit) {
     fprintf(stderr,">%d-base primers not yet supported",PrimerLimit);
-#ifdef __x86_64
+#ifdef CPU_64bit
 #if !Has_128bit
     fprintf(stderr," by this compiler.\n(128 bases can be supported if you compile the program with GCC or CLANG)");
 #endif

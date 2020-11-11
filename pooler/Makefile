@@ -117,5 +117,7 @@ pooler: unix
 all: pooler
 install: all
 	$(INSTALL_PROGRAM) pooler $(DESTDIR)/$(PREFIX)/bin/
+	$(INSTALL_MAN) pooler.1 $(DESTDIR)/$(PREFIX)/man/man1/
 PREFIX?=usr/local
 INSTALL_PROGRAM?=cp
+INSTALL_MAN?=cp

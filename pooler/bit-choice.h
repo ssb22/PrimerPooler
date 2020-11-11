@@ -26,7 +26,7 @@ limitations under the License.
 #include "128.h"
 #include "64-128.h"
 #else
-#if defined(__x86_64) || defined(__ARM_ARCH_ISA_A64)
+#if CPU_64bit
 #include "64-only.h"
 #else
 #include "32.h"

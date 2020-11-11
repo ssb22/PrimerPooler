@@ -18,7 +18,10 @@ limitations under the License.
 typedef uint32_t bit32;
 typedef uint64_t bit64;
 typedef uint64_t ULL; /* for bit64 w/out sed changes */
-#if defined(__x86_64) && (defined(__GNUC__) || defined(__clang__)) && !defined(Has_128bit)
+#if (defined(__x86_64) || defined(__ARM_ARCH_ISA_A64) || defined(__aarch64__) || defined(__ppc64__) || defined(__powerpc64__) || (defined(__mips__) && _MIPS_SIM==_ABI64) || (defined(__riscv) && __riscv_xlen==64) || defined(__arch64__) || defined(__64BIT__)) && !defined(CPU_64bit)
+#define CPU_64bit 1
+#endif
+#if CPU_64bit && (defined(__GNUC__) || defined(__clang__)) && !defined(Has_128bit)
 /* __uint128_t is available in x86-64 on GCC and clang,
    but not MSVC (as of 2015); don't know about Intel */
 #define Has_128bit 1
