@@ -13,10 +13,10 @@
 # limitations under the License.
 
 unix: 128.h 32.h 32-64.h
-	$(CC) $(UnixFlags) *.c -o pooler -lm
+	$(CC) $(CFLAGS) $(OpenMpFlag) *.c -o pooler -lm
 
 mac-portable: 128.h 32.h 32-64.h
-	$(CC) -mmacosx-version-min=10.7 $(UnixFlags) *.c -o pooler -lm
+	$(CC) -mmacosx-version-min=10.7 $(CFLAGS) $(OpenMpFlag) *.c -o pooler -lm
 # (this is for compiling for distribution on a Mac that is
 # higher than 10.7, to make sure the result will still run
 # on 10.7 (lower is rarely possible nowadays).  But 10.9's
@@ -46,23 +46,42 @@ mingw:
 win-crosscompile-old: 128.h 32.h 32-64.h
 	i386-mingw32-gcc -Wall -Os *.c -l comdlg32 -o pooler.exe -lm
 
-UnixFlags=-Wall -O3 # some distros seem to have a buggy -flto, so don't use that even if have checked it's available
-WinFlags=-Wall -Os -flto -static -fopenmp # TODO: comdlg32 etc doesn't have to be static, only OpenMP/pthread (but low-priority because comdlg32 itself is only 20k or so)
+# Default compiler for Unix.  Some Macs have both cc and
+# gcc but only the gcc supports OpenMP, so prefer gcc.
+CC ?= $(shell if gcc --version >/dev/null 2>/dev/null; then echo gcc; else echo cc; fi)
 
-CC0=$(shell if gcc --version >/dev/null 2>/dev/null; then echo gcc; else echo cc; fi) # some Macs have both but only the gcc supports OpenMP, so prefer that
-CC1=$(shell echo 'int main(){}' > _test.c; if $(CC0) -mtune=native _test.c -o /dev/null 2>/dev/null; then echo -mtune=native; fi; if $(CC0) -fopenmp _test.c -o /dev/null 2>/dev/null; then echo -fopenmp; fi; rm _test.c) # -march=native inadvisable if distributing the binary (and on some setups -mtune=native is available but -march=native isn't)
-CC=$(CC0) $(CC1)
+# Default flags for Unix.  We add -mtune=native to the
+# default set if the compiler supports it (but NOT -march
+# because that would render the binary non-distributable),
+# but we allow a user CFLAGS to override all of this.
+UnixFlags=-Wall -O3
+# (some distros have a buggy -flto, so don't use that)
+MTuneFlag=$(shell echo 'int main(){}' > _test.c; if $(CC) -mtune=native _test.c -o /dev/null 2>/dev/null; then echo -mtune=native; fi; rm _test.c)
+CFLAGS ?= $(UnixFlags) $(MTuneFlag)
+
+# But, we definitely want the -fopenmp flag if supported by the compiler.
+# That's the only way we'll get the parallelisation to work.
+# So we have -fopenmp even if CFLAGS is set without it, if CC supports it
+# (i.e. we don't rely on the user to remember to include -fopenmp in CFLAGS,
+# although they can still use a compiler without support)
+OpenMpFlag=$(shell echo 'int main(){}' > _test.c; if $(CC) -fopenmp _test.c -o /dev/null 2>/dev/null; then echo -fopenmp; fi; rm _test.c)
+
+# Flags for cross-compiling to Windows:
+WinFlags=-Wall -Os -flto -static -fopenmp # TODO: comdlg32 etc doesn't have to be static, only OpenMP/pthread (but low-priority because comdlg32 itself is only 20k or so)
 
 .PHONY: clean test-other
 clean:
 	rm -f 128.h 32.h 32-64.h *~
 
+# For the generated 128.h etc, we keep them read-only as
+# an extra reminder that they're auto-generated (as well
+# as the explanatory comment at the top)
 128.h 32.h 32-64.h: 64.h 64-128.h
-	chmod a+w 128.h 32.h 32-64.h 2>/dev/null || true
+	chmod +w 128.h 32.h 32-64.h 2>/dev/null || true
 	sed -e s/64/128/g < 64.h > 128.h
 	sed -e s/64/32/g < 64.h > 32.h
 	sed -e s/64/32/g -e s/128/64/g < 64-128.h > 32-64.h
-	chmod a-w 128.h 32.h 32-64.h
+	chmod -w 128.h 32.h 32-64.h
 
 pooler.tgz: clean
 	! grep ^#define debug.h # error if any debug.h option is still enabled
@@ -76,8 +95,8 @@ pooler.tgz: clean
 
 # check things still at least compile:
 test-other: 128.h 32.h 32-64.h
-	$(CC) $(UnixFlags) -m32 *.c -o /dev/null # 32-64.h
-	$(CC) $(UnixFlags) -D__ARM_ARCH_ISA_A64 *.c -o /dev/null # 64-only.h
+	$(CC) $(CFLAGS) $(OpenMpFlag) -m32 *.c -o /dev/null # 32-64.h
+	$(CC) $(CFLAGS) $(OpenMpFlag) -D__ARM_ARCH_ISA_A64 *.c -o /dev/null # 64-only.h
 
 # Use of UPX to reduce .exe size and save server space.
 # This won't give as good a compression as .zip or .7z,
@@ -118,6 +137,9 @@ all: pooler
 install: all
 	$(INSTALL_PROGRAM) pooler $(DESTDIR)/$(PREFIX)/bin/
 	$(INSTALL_MAN) pooler.1 $(DESTDIR)/$(PREFIX)/man/man1/
-PREFIX?=usr/local
-INSTALL_PROGRAM?=cp
-INSTALL_MAN?=cp
+install-strip: install
+	$(STRIP) $(DESTDIR)/$(PREFIX)/bin/pooler
+PREFIX          ?= usr/local
+INSTALL_PROGRAM ?= cp
+INSTALL_MAN     ?= cp
+STRIP           ?= strip
