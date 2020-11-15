@@ -12,26 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-unix: 128.h 32.h 32-64.h
+pooler: 128.h 32.h 32-64.h
 	$(CC) $(CFLAGS) $(OpenMpFlag) *.c -o pooler -lm
 
-mac-portable: 128.h 32.h 32-64.h
-	$(CC) -mmacosx-version-min=10.7 $(CFLAGS) $(OpenMpFlag) *.c -o pooler -lm
-# (this is for compiling for distribution on a Mac that is
-# higher than 10.7, to make sure the result will still run
-# on 10.7 (lower is rarely possible nowadays).  But 10.9's
-# gcc lacks OpenMP (although 10.7's has it); 10.9 will
-# therefore compile only the single-core version.
-# TODO: check for a Homebrew-installed gcc-6 & use that?)
-# TODO: what happens when ARM Macs come out?  Rosetta 1 (PowerPC to IA32) performance was 60%-80% of native; don't yet know about Rosetta 2
-# Might at least be able to display a warning message?
-# #include <sys/sysctl.h>
-# #include <errno.h>
-# int ret = 0; size_t size = sizeof(ret); if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) != -1 && ret) puts("WARNING: Rosetta is in use, this might slow things down");
-# (but need to check to what extent it does JIT first)
-
 win-crosscompile: pooler.exe pooler64.exe
-.PHONY: unix mac-portable win-crosscompile mingw publish
+.PHONY: mac-portable win-crosscompile mingw publish
 pooler.exe: 128.h 32.h 32-64.h mingw
 	i686-w64-mingw32-gcc $(WinFlags) *.c -l comdlg32 -o pooler.exe -lm
 pooler64.exe: 128.h 32.h 32-64.h mingw
@@ -83,6 +68,8 @@ clean:
 	sed -e s/64/32/g -e s/128/64/g < 64-128.h > 32-64.h
 	chmod -w 128.h 32.h 32-64.h
 
+# -----------------------------------------------------
+# Rules you won't need unless releasing new versions:
 pooler.tgz: clean
 	! grep ^#define debug.h # error if any debug.h option is still enabled
 	rm -rf release
@@ -92,12 +79,10 @@ pooler.tgz: clean
 	gzip -9 release/pooler.tar
 	mv release/pooler.tar.gz pooler.tgz
 	rm -rf release
-
 # check things still at least compile:
 test-other: 128.h 32.h 32-64.h
 	$(CC) $(CFLAGS) $(OpenMpFlag) -m32 *.c -o /dev/null # 32-64.h
 	$(CC) $(CFLAGS) $(OpenMpFlag) -D__ARM_ARCH_ISA_A64 *.c -o /dev/null # 64-only.h
-
 # Use of UPX to reduce .exe size and save server space.
 # This won't give as good a compression as .zip or .7z,
 # but Windows unfortunately gives users the impression
@@ -112,12 +97,12 @@ test-other: 128.h 32.h 32-64.h
 # UPX 64-bit is experimental!  but seems to work for this.
 upx:
 	upx --best *.exe
-
-# make publish M="commit message goes here"
+# Use: make publish M="commit message goes here"
 # (or if only comments etc changed & no recompile,
 # make publish-src M="commit message goes here" )
-publish: mac-portable test-other
-	rm -f pooler.zip
+publish: test-other
+	rm -f pooler pooler.zip
+	make pooler CFLAGS="$(UnixFlags) -mmacosx-version-min=10.7" # (lower is rarely possible nowadays)
 	vagrant up # x86-64 MingW not installed locally:
 	vagrant ssh -c 'cd /vagrant && advzip -4 --i 1000 -a pooler.zip pooler && rm pooler && make && make win-crosscompile' # pooler.zip is Mac version (advzip used to save an extra little bit of space over zip); GNU/Linux 'make' included in command just to make sure
 	make upx pooler.tgz
@@ -131,8 +116,18 @@ publish-src: test-other
 	scp pooler.tgz ds:homepage/pooler/
 	ssh ds 'CommitMsg_PrimerPooler="$(M)" homepage/update'
 
+# Mac OS 10.9's gcc lacks OpenMP (although 10.7's has it);
+# TODO: check for a Homebrew-installed gcc-6 & use that?
+# TODO: what happens when ARM Macs come out?  Rosetta 1 (PowerPC to IA32) performance was 60%-80% of native; don't yet know about Rosetta 2
+# Might at least be able to display a warning message?
+# #include <sys/sysctl.h>
+# #include <errno.h>
+# int ret = 0; size_t size = sizeof(ret); if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) != -1 && ret) puts("WARNING: Rosetta is in use, this might slow things down");
+# (but need to check to what extent it does JIT first)
+
+# -----------------------------------------------------
+
 # compatibility with bsd.port.mk:
-pooler: unix
 all: pooler
 install: all
 	$(INSTALL_PROGRAM) pooler $(DESTDIR)/$(PREFIX)/bin/
