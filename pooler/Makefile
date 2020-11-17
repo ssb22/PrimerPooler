@@ -130,6 +130,8 @@ publish-src: test-other
 # compatibility with bsd.port.mk:
 all: pooler
 install: all
+	$(MKDIR) $(DESTDIR)/$(PREFIX)/bin
+	$(MKDIR) $(DESTDIR)/$(PREFIX)/man/man1
 	$(INSTALL_PROGRAM) pooler $(DESTDIR)/$(PREFIX)/bin/
 	$(INSTALL_MAN) pooler.1 $(DESTDIR)/$(PREFIX)/man/man1/
 install-strip: install
@@ -138,3 +140,4 @@ PREFIX          ?= usr/local
 INSTALL_PROGRAM ?= cp
 INSTALL_MAN     ?= cp
 STRIP           ?= strip
+MKDIR           ?= mkdir -p
