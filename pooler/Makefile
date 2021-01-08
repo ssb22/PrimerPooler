@@ -61,12 +61,18 @@ clean:
 # For the generated 128.h etc, we keep them read-only as
 # an extra reminder that they're auto-generated (as well
 # as the explanatory comment at the top)
-128.h 32.h 32-64.h: 64.h 64-128.h
-	chmod +w 128.h 32.h 32-64.h 2>/dev/null || true
+128.h: 64.h
+	chmod +w 128.h 2>/dev/null || true
 	sed -e s/64/128/g < 64.h > 128.h
+	chmod -w 128.h
+32.h: 64.h
+	chmod +w 32.h 2>/dev/null || true
 	sed -e s/64/32/g < 64.h > 32.h
+	chmod -w 32.h
+32-64.h: 64-128.h
+	chmod +w 32-64.h 2>/dev/null || true
 	sed -e s/64/32/g -e s/128/64/g < 64-128.h > 32-64.h
-	chmod -w 128.h 32.h 32-64.h
+	chmod -w 32-64.h
 
 # -----------------------------------------------------
 # Rules you won't need unless releasing new versions:
