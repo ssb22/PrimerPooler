@@ -13,6 +13,7 @@
 # and on GitLab at https://gitlab.com/ssb22/PrimerPooler
 # and on BitBucket https://bitbucket.org/ssb22/primerpooler
 # and at https://gitlab.developers.cam.ac.uk/ssb22/PrimerPooler
+# and in China: https://gitee.com/ssb22/PrimerPooler
 
 timingFile = open("log1")
 outputFile = open("log2")
