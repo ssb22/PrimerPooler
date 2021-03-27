@@ -388,7 +388,7 @@ I’ve lost track of how many giants I’ve stood on the shoulders of for this, 
 
 * Martin Richards for his BCPL bit-pattern techniques, which influenced the way I wrote the fast dimer check;
 
-* Richard Stallman and his Free Software Foundation for their legal research, C compiler, editor and debugger;
+* The free/libre and open source software community for their legal research, a C compiler, editor and debugger;
 
 * my wife Yun-Wen, who needed this for her cancer-research project, provided test data and feedback, and put up with all my silly questions.
 
