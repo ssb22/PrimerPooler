@@ -1,4 +1,9 @@
 #!/bin/bash
+
+echo "ERROR: update.sh needs changing"
+echo "FreeBSD ports have migrated from svn to git"
+exit 1
+
 # ssh freebsd svn switch https://svn.FreeBSD.org/ports/head /usr/ports
 # ssh freebsd pkg install portlint
 # ssh freebsd "echo 'DEVELOPER=yes' >> /etc/make.conf"
