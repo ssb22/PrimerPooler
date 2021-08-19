@@ -17,8 +17,9 @@ limitations under the License.
 #include <string.h>
 #include "ansi.h"
 #include "version.h"
+#include "bit-basics.h"
 void printTitle() {
-#if __LP64__
+#if CPU_64bit
 #define CpuBits "64"
 #define ExtraLine1 ""
 #else

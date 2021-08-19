@@ -18,7 +18,7 @@ limitations under the License.
 typedef uint32_t bit32;
 typedef uint64_t bit64;
 typedef uint64_t ULL; /* for bit64 w/out sed changes */
-#if (defined(__x86_64) || defined(__ARM_ARCH_ISA_A64) || defined(__aarch64__) || defined(__ppc64__) || defined(__powerpc64__) || (defined(__mips__) && _MIPS_SIM==_ABI64) || (defined(__riscv) && __riscv_xlen==64) || defined(__arch64__) || defined(__64BIT__)) && !defined(CPU_64bit)
+#if (defined(__x86_64) || defined(_WIN64) || defined(__ARM_ARCH_ISA_A64) || defined(__aarch64__) || defined(__ppc64__) || defined(__powerpc64__) || (defined(__mips__) && _MIPS_SIM==_ABI64) || (defined(__riscv) && __riscv_xlen==64) || defined(__arch64__) || defined(__64BIT__)) && !defined(CPU_64bit)
 #define CPU_64bit 1
 #endif
 #if CPU_64bit && (defined(__GNUC__) || defined(__clang__)) && !defined(Has_128bit)
@@ -76,5 +76,5 @@ static inline char fast_toUpper(char c) {
      when c is not an ASCII alphabetical letter (as long
      as an input of 0 still gives 0 output), so: */
   if ('A' == 0x41 && 'a' == 0x61) return c & ~0x20;
-  else return toupper(c); // non-ASCII system??
+  else return toupper(c); // non-ASCII system
 }

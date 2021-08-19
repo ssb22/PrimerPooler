@@ -398,7 +398,7 @@ static float* getDeltaG(int maxLen) {
     puts("OK, please enter the deltaG settings:");
     float k,mag,mono,dntp;
     while (1) {
-      k=getKelvin("Temperature: ");
+      k=getKelvin("deltaG temperature (e.g. 37): "); // clarification added in v1.77 because somebody thought they should type their experiment's Tm (melting point) here
       if (k >= 0 || getYN("This temperature is physically impossible. Continue anyway? (y/n): ")) break;
     }
     while(1) {
