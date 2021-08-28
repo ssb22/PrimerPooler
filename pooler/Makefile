@@ -80,7 +80,7 @@ pooler.tgz: clean
 	! grep ^#define debug.h # error if any debug.h option is still enabled
 	rm -rf release
 	mkdir -p release/pooler
-	cp *.c *.h Makefile release/pooler/
+	cp *.c *.h *.desktop Makefile release/pooler/
 	cd release && tar -cvf pooler.tar pooler && cd ..
 	gzip -9 release/pooler.tar
 	mv release/pooler.tar.gz pooler.tgz
@@ -124,7 +124,7 @@ publish-src: test-other
 
 # Mac OS 10.9's gcc lacks OpenMP (although 10.7's has it);
 # TODO: check for a Homebrew-installed gcc-6 & use that?
-# TODO: what happens when ARM Macs come out?  Rosetta 1 (PowerPC to IA32) performance was 60%-80% of native; don't yet know about Rosetta 2
+# TODO: can someone test on an ARM Mac?  Rosetta 1 (PowerPC to IA32) performance was 60%-80% of native; don't yet know about Rosetta 2
 # Might at least be able to display a warning message?
 # #include <sys/sysctl.h>
 # #include <errno.h>
@@ -139,11 +139,13 @@ install: all
 	$(MKDIR) $(DESTDIR)/$(PREFIX)/bin
 	$(MKDIR) $(DESTDIR)/$(PREFIX)/man/man1
 	$(INSTALL_PROGRAM) pooler $(DESTDIR)/$(PREFIX)/bin/
+	$(INSTALL_DATA) pooler.desktop $(DESTDIR)/$(PREFIX)/share/applications
 	$(INSTALL_MAN) pooler.1 $(DESTDIR)/$(PREFIX)/man/man1/
 install-strip: install
 	$(STRIP) $(DESTDIR)/$(PREFIX)/bin/pooler
 PREFIX          ?= usr/local
 INSTALL_PROGRAM ?= cp
+INSTALL_DATA    ?= cp
 INSTALL_MAN     ?= cp
 STRIP           ?= strip
 MKDIR           ?= mkdir -p

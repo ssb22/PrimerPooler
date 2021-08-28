@@ -13,5 +13,5 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#define Program_Version "Primer Pooler v1.77"
+#define Program_Version "Primer Pooler v1.78"
 #define Program_Copyright "(c) 2016-21 Silas S. Brown.  For Wen."

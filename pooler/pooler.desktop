@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name="Primer Pooler"
+Comment="Optimise primer combinations in multiplexed PCR"
+TryExec=pooler
+Exec=pooler --interactive
+Terminal=true
+Categories=Education;Science;Biology

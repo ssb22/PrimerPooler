@@ -481,9 +481,10 @@ static void suggestMax(int nPools,int average,int total) {
 int main(int argc, char *argv[]) {
   argv0 = argv[0]; InitNumbers();
   void printTitle(); printTitle(); // title.c
-  if(argc==1) {
-    puts("You did not specify any command-line arguments.");
-    if(getYN("Would you like to run interactively? (y/n): ")) {
+  if(argc==1 || (argc==2 && !strcmp(argv[1],"--interactive"))) {
+    if(argc==2 ||
+       (puts("You did not specify any command-line arguments."),
+        getYN("Would you like to run interactively? (y/n): "))) {
       signal(SIGABRT, assertHandler);
       do {
         puts("Please enter the name of the primers file to read.\n"
