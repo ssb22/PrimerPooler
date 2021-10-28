@@ -16,7 +16,7 @@ pooler: 128.h 32.h 32-64.h
 	$(CC) $(CFLAGS) $(OpenMpFlag) *.c -o pooler -lm
 
 win-crosscompile: pooler.exe pooler64.exe
-.PHONY: mac-portable win-crosscompile mingw publish
+.PHONY: win-crosscompile mingw publish
 pooler.exe: 128.h 32.h 32-64.h mingw
 	i686-w64-mingw32-gcc $(WinFlags) *.c -l comdlg32 -o pooler.exe -lm
 pooler64.exe: 128.h 32.h 32-64.h mingw
