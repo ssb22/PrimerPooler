@@ -5,10 +5,12 @@ From http://ssb22.user.srcf.net/pooler/
 
 (mirrored at http://ssb22.gitlab.io/pooler/ just in case)
 
-This is a program I wrote for cancer researchers and others who want to use
+This program is for geneticists who want to use
 Multiplex PCR to study
 DNA samples, and wish to optimise
 their combinations of primers to minimise the formation of dimers.
+It has been used and cited in oncology, plant
+science, climatology, COVID-19 and other research.
 
 Primer Pooler can:
 
