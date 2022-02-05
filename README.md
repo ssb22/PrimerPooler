@@ -81,13 +81,13 @@ Temperature:
 : Enter a number (decimal fractions are allowed). You can enter it in Celsius, Kelvin, Fahrenheit or Rankine. Do not enter the suffix C or K or F or R—Primer Pooler will determine for itself which unit was meant, and ask you to confirm. (Recent versions of Primer Pooler offer 5 additional obscure temperature scales if you decline all of the more probable ones.)
 
 Magnesium concentration in mM (0 for no correction):
-: Enter your concentration of magnesium in nanomoles per cubic metre (decimal fractions are allowed). Enter 0 if you don’t mind the deltaG figures not being corrected for magnesium concentration.
+: Enter your concentration of magnesium in millimoles per cubic metre (decimal fractions are allowed). Enter 0 if you don’t mind the deltaG figures not being corrected for magnesium concentration.
 
 Monovalent cation (e.g. sodium) concentration in mM:
-: Enter your concentration of sodium etc in nanomoles per cubic metre (decimal fractions are allowed). If in doubt, try 50.
+: Enter your concentration of sodium etc in millimoles per cubic metre (decimal fractions are allowed). If in doubt, try 50.
 
 dNTP concentration in mM (0 for no correction):
-: Enter your concentration of deoxynucleotide (dNTP) in nanomoles per cubic metre (decimal fractions are allowed). Enter 0 if you don’t mind the deltaG figures not being corrected for dNTP concentration.
+: Enter your concentration of deoxynucleotide (dNTP) in millimoles per cubic metre (decimal fractions are allowed). If you have been supplied a mixture with separately-specified concentrations of aNTP, cNTP, gNTP and tNTP then sum these. Enter 0 if you don’t mind the deltaG figures not being corrected for dNTP concentration.
 
 (end of deltaG questions)
 
@@ -199,7 +199,7 @@ Processing options should be placed before this filename. Options are as follows
 : Similar to `--counts`, this can be useful for checking a manual selection or for a rough idea. All interactions worse than the given threshold (deltaG if `--dg` is in use, otherwise score) will be written to standard output, with bonds diagrams.
 
 `--dg[=temperature[,mg[,cation[,dNTP]]]]`
-: Set this option to use deltaG instead of score. Optional parameters are the temperature (default is human blood heat), the concentration of magnesium (default 0), the concentration of monovalent cation (e.g. sodium, default 50), and the concentration of deoxynucleotide (dNTP, default 0). Decimal fractions are allowed in all of these. Temperature is specified in kelvin, and all concentrations are specified in nanomoles per cubic metre.
+: Set this option to use deltaG instead of score. Optional parameters are the temperature (default is human blood heat), the concentration of magnesium (default 0), the concentration of monovalent cation (e.g. sodium, default 50), and the concentration of deoxynucleotide (dNTP, default 0). Decimal fractions are allowed in all of these. Temperature is specified in kelvin, and all concentrations are specified in millimoles per cubic metre.
 
 `--suggest-pools`
 : Outputs a suggested number of pools. This is the approximate lowest number of pools needed to achieve no worse than a deltaG of -7 (or a score of 7) in each.
