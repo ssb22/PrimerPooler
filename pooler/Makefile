@@ -121,6 +121,13 @@ publish-src: test-other
 	make pooler.tgz
 	scp pooler.tgz ds:homepage/pooler/
 	ssh ds 'CommitMsg_PrimerPooler="$(M)" homepage/update'
+update-manual:
+	(echo '## Primer Pooler';awk 'BEGIN{p=0} /^From http/{p=1} /^Compiling from source/{p=0} /^Usage$$/{p=1} /Typescript player/{p=0} //{if(p)print}' < ~/PrimerPooler/README.md|grep -v http://ssb22|gsed -Ee "s/(‘)|(’)/'/g" -e 's/(“)|(”)/"/g' -e 's/ / /g' -e 's/—/---/g' -e 's/ or `pooler64`//' ) > pooler.1.md
+	vagrant up
+	vagrant ssh -c 'ronn -r /vagrant/pooler.1.md'
+	vagrant halt
+	sed -e 's/"" ""/"Silas S. Brown" ""/' < pooler.1 > ~/PrimerPooler/pooler/pooler.1
+	@rm pooler.1.md pooler.1
 
 # Mac OS 10.9's gcc lacks OpenMP (although 10.7's has it);
 # TODO: check for a Homebrew-installed gcc-6 & use that?

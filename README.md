@@ -239,7 +239,7 @@ Version 1.0 had important bugs that can affect results:
 
 These bugs have now been fixed. In addition, Versions 1.1 through 1.13 had a bug related to the first fix, which would cause interaction-checking for pooling purposes to be performed _without_ tags when running in interactive mode (command-line mode was not affected). I therefore recommend re-running in the latest version.
 
-Versions prior to 1.17 also had a display bug: the concentrations for the deltaG calculation are in millimoles per litre, not nanomoles as stated on-screen in interactive mode (please ignore the on-screen instruction and enter millimoles, or upgrade to the latest version which fixes that instruction).
+Versions prior to 1.17 also had a display bug: the concentrations for the deltaG calculation are in millimoles per litre, not nanomoles as stated on-screen in interactive mode (please ignore the on-screen instruction and enter millimoles, or upgrade to the latest version which fixes that instruction).  The manual was fixed in version 1.79.
 
 Versions prior to 1.34 would round down any decimal fraction you type when in interactive mode (for deltaG temperature, concentration and threshold settings). Internal calculation and command-line use was not affected by this bug.
 
