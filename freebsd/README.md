@@ -6,6 +6,8 @@ under `/usr/ports/biology/pooler` (porting discussion was on [issue 251065](http
 v1.77 update was [472c25a](https://cgit.freebsd.org/ports/commit/?id=472c25aa5d8dc3268fc5476b53100872d1900467)
 discussed at [257975](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=257975)),
 v1.78 update was [541454f](https://cgit.FreeBSD.org/ports/commit/?id=541454f9939d3836bc1bcf642f8c748a1d04bb80)
-discussed at [258120](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=258120)
+discussed at [258120](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=258120),
+v1.79 update pending
+discussed at [261741](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=261741)
 
 FreeBSD users should be able to install it via `pkg install pooler`

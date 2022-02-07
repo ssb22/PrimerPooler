@@ -66,7 +66,7 @@ Please enter the name of the primers file to read.
 
 (this example does not represent real primers). Degenerate bases are allowed using the normal letters, and both upper and lower case is allowed. Names of amplicons’ primers should end with F or R (for Forward and Reverse), and otherwise match.
 
-Optionally include tags to apply to all primers (also called _tailed primers_ or barcoding) using `>tagF` and `>tagR` (tags can also be changed part-way through the file). If you also have Taq probes or other primers that don’t themselves make amplicons, you can include these ending with other letters, e.g. `>toySet1-P`—any set of names differing in only the last letter will be kept in the same pool, but you must use F for forward and R or B for reverse (backward) if you also want to check primer-pairs for overlaps in the genome.
+Optionally include tags to apply to all primers (also called _tailed primers_ or barcoding) using `>tagF` and `>tagR` (tags can also be changed part-way through the file). If you also have Taq probes or other primers that don’t themselves make amplicons, you can include these ending with other letters, e.g. `>toySet1-P`—any set of names differing in only the last letter will be kept in the same pool, but you must use F for forward and R or B for reverse (backward) if you also want to check primer-pairs for overlaps in the genome.  If you want to re-use the same primer in two amplicons (for example, two amplicons that have the same forward primer but differing reverse primers, to be found on two different genomes), then you should input the shared primer _twice_, once for each amplicon, each time naming it after the corresponding amplicon (e.g. product1-F and product2-F)—the corresponding sets will then be kept in the same pool.
 
 You can also manually “fix” a primer-set to a predetermined pool number by using a primer name prefix: `>@2:myPrimer-F` fixes `myPrimer-F` to pool 2 (in which case Primer Pooler will allocate other primer-sets around these limitations); this can be useful when you don’t have a whole-genome file for overlap detection.
 
@@ -80,14 +80,14 @@ Do you want to use deltaG? (y/n):
 Temperature:
 : Enter a number (decimal fractions are allowed). You can enter it in Celsius, Kelvin, Fahrenheit or Rankine. Do not enter the suffix C or K or F or R—Primer Pooler will determine for itself which unit was meant, and ask you to confirm. (Recent versions of Primer Pooler offer 5 additional obscure temperature scales if you decline all of the more probable ones.)
 
-Magnesium concentration in mM (0 for no correction):
-: Enter your concentration of magnesium in millimoles per cubic metre (decimal fractions are allowed). Enter 0 if you don’t mind the deltaG figures not being corrected for magnesium concentration.
+Magnesium concentration mM/L (0 for no correction):
+: Enter your concentration of magnesium in millimoles per litre (decimal fractions are allowed). Enter 0 if you don’t mind the deltaG figures not being corrected for magnesium concentration.
 
-Monovalent cation (e.g. sodium) concentration in mM:
-: Enter your concentration of sodium etc in millimoles per cubic metre (decimal fractions are allowed). If in doubt, try 50.
+Monovalent cation (e.g. sodium) concentration mM/L:
+: Enter your concentration of sodium etc in millimoles per litre (decimal fractions are allowed). If in doubt, try 50.
 
-dNTP concentration in mM (0 for no correction):
-: Enter your concentration of deoxynucleotide (dNTP) in millimoles per cubic metre (decimal fractions are allowed). If you have been supplied a mixture with separately-specified concentrations of aNTP, cNTP, gNTP and tNTP then sum these. Enter 0 if you don’t mind the deltaG figures not being corrected for dNTP concentration.
+dNTP concentration mM/L (0 for no correction):
+: Enter your concentration of deoxynucleotide (dNTP) in millimoles per litre (decimal fractions are allowed). If you have been supplied a mixture with separately-specified concentrations of dATP, dCTP, dGTP and dTTP then sum these. Enter 0 if you don’t mind the deltaG figures not being corrected for dNTP concentration.
 
 (end of deltaG questions)
 
@@ -182,7 +182,7 @@ The only _mandatory_ argument (if not running interactively) is a filename for t
     >toySet2-R
     CAGACGTTCAG
 
-(this example does not represent real primers). Degenerate bases are allowed using the normal letters, and both upper and lower case is allowed. Names of amplicons’ primers should end with F or R, and otherwise match. Optionally include tags (tails, barcoding) to apply to all primers: >tagF and >tagR (tags can also be changed part-way through the file).
+(this example does not represent real primers). Degenerate bases are allowed using the normal letters, and both upper and lower case is allowed. Names of amplicons’ primers should end with F or R, and otherwise match. Taq probes etc can end with other letters. If you want to use the same primer sequence as part of two or more amplicons, then you may include two or more copies in the input with different names; they'll be kept in the same pool. Optionally include tags (tails, barcoding) to apply to all primers: >tagF and >tagR (tags can also be changed part-way through the file).
 
 Processing options should be placed before this filename. Options are as follows:
 
@@ -199,7 +199,7 @@ Processing options should be placed before this filename. Options are as follows
 : Similar to `--counts`, this can be useful for checking a manual selection or for a rough idea. All interactions worse than the given threshold (deltaG if `--dg` is in use, otherwise score) will be written to standard output, with bonds diagrams.
 
 `--dg[=temperature[,mg[,cation[,dNTP]]]]`
-: Set this option to use deltaG instead of score. Optional parameters are the temperature (default is human blood heat), the concentration of magnesium (default 0), the concentration of monovalent cation (e.g. sodium, default 50), and the concentration of deoxynucleotide (dNTP, default 0). Decimal fractions are allowed in all of these. Temperature is specified in kelvin, and all concentrations are specified in millimoles per cubic metre.
+: Set this option to use deltaG instead of score. Optional parameters are the temperature (default is human blood heat), the concentration of magnesium (default 0), the concentration of monovalent cation (e.g. sodium, default 50), and the concentration of deoxynucleotide (dNTP, default 0). Decimal fractions are allowed in all of these. Temperature is specified in kelvin, and all concentrations are specified in millimoles per litre.
 
 `--suggest-pools`
 : Outputs a suggested number of pools. This is the approximate lowest number of pools needed to achieve no worse than a deltaG of -7 (or a score of 7) in each.
@@ -239,7 +239,7 @@ Version 1.0 had important bugs that can affect results:
 
 These bugs have now been fixed. In addition, Versions 1.1 through 1.13 had a bug related to the first fix, which would cause interaction-checking for pooling purposes to be performed _without_ tags when running in interactive mode (command-line mode was not affected). I therefore recommend re-running in the latest version.
 
-Versions prior to 1.17 also had a display bug: the concentrations for the deltaG calculation are in millimoles per litre, not nanomoles as stated on-screen in interactive mode (please ignore the on-screen instruction and enter millimoles, or upgrade to the latest version which fixes that instruction).  The manual was fixed in version 1.79.
+Versions prior to 1.17 also had a display bug: the concentrations for the deltaG calculation are in millimoles per litre, not nanomoles as stated on-screen in interactive mode (please ignore the on-screen instruction and enter millimoles, or upgrade to the latest version which fixes that instruction).  The manual was fixed in version 1.8 (also noting that it's per litre, not per cubic metre).
 
 Versions prior to 1.34 would round down any decimal fraction you type when in interactive mode (for deltaG temperature, concentration and threshold settings). Internal calculation and command-line use was not affected by this bug.
 
@@ -258,6 +258,8 @@ Version 1.6 detects and warns about alternative products of non-unique PCR.  It
 Version 1.7 makes the ignoring of variant sequences in the genome optional, and warns if primers not being found might be due to variant sequences having been ignored.
 
 Version 1.72 changes the license to Apache 2.0.
+
+Version 1.8 allows multiple amplicons to share one primer and to be kept together.
 
 Glossary
 --------

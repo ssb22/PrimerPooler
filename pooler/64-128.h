@@ -188,3 +188,10 @@ void dGprintStats(AllPrimers ap,const int *pools,const int *precalcScores,FILE *
     pStats64dG(ap.np,pools,precalcScores,f);
   else pStats128dG(ap.np,pools,precalcScores,f);
 }
+
+int isIdentical(AllPrimers ap,int i,int j) {
+  return ap.whichTag[i]==ap.whichTag[j] &&
+    ((ap.maxLen <= 64) ?
+     Equal64(ap.forward.p64[i],ap.forward.p64[j])
+     :Equal128(ap.forward.p128[i],ap.forward.p128[j]));
+}

@@ -402,9 +402,9 @@ static float* getDeltaG(int maxLen) {
       if (k >= 0 || getYN("This temperature is physically impossible. Continue anyway? (y/n): ")) break;
     }
     while(1) {
-      mag=getFloat("Magnesium concentration in mM (0 for no correction): "); // Versions prior to 1.17 incorrectly called these nM instead of mM (unit, you nit :-) )
-      mono=getFloat("Monovalent cation (e.g. sodium) concentration in mM (e.g. 50): ");
-      dntp=getFloat("dNTP concentration in mM (0 for no correction): ");
+      mag=getFloat("Magnesium concentration mM/L (0 for no correction): "); // Versions prior to 1.17 incorrectly called these nM instead of mM (unit, you nit :-) )
+      mono=getFloat("Monovalent cation (e.g. sodium) concentration mM/L (e.g. 50): ");
+      dntp=getFloat("dNTP concentration mM/L (0 for no correction): ");
       if (mag || mono || dntp || getYN("Zeroing all 3 concentrations will give infinite deltaG.\nCarry on regardless? (y/n): ")) break;
     }
     table = deltaG_table(k,mag,mono,dntp);

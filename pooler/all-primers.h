@@ -54,3 +54,4 @@ int dGprintPooledCounts(AllPrimers ap,const int *pools,const int *precalcScores,
 void dGandScoreCounts(AllPrimers ap,const float *table,FILE *f);
 void printStats(AllPrimers ap,const int *pools,const int *precalcScores,FILE *f);
 void dGprintStats(AllPrimers ap,const int *pools,const int *precalcScores,FILE *f);
+int isIdentical(AllPrimers ap,int i,int j);

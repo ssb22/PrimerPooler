@@ -30,6 +30,16 @@ typedef struct {
   } p;
   int isD;
 } MaybeDegeneratePrimer64;
+static inline int PrimerEqual64(Primer64 a,Primer64 b) {
+  return a.AorT==b.AorT && a.GorT==b.GorT && a.valid==b.valid;
+}
+static inline int DegeneratePrimerEqual64(DegeneratePrimer64 a,DegeneratePrimer64 b) {
+  return a.MaybeA==b.MaybeA && a.MaybeC==b.MaybeC && a.MaybeG==b.MaybeG && a.MaybeT==b.MaybeT;
+}
+static inline int Equal64(MaybeDegeneratePrimer64 a,MaybeDegeneratePrimer64 b) {
+  /* assumes we upgrade to degenerate if and only if at least one base is actually degenerate */
+  return a.isD==b.isD && (a.isD?DegeneratePrimerEqual64(a.p.D,b.p.D):PrimerEqual64(a.p.notD,b.p.notD));
+}
 static MaybeDegeneratePrimer64 wrapPrimer64(Primer64 p) {
   MaybeDegeneratePrimer64 r;
   r.p.notD = p; r.isD = 0; return r;

@@ -266,31 +266,52 @@ static ULL globalBadness(const int *score,int np,const int *pools) {
 
 static inline int should_stick_together(AllPrimers ap,int i,int j) {
   /* Names same except last letter = keep in same pool */
+  /* Identical content = keep in same pool (will then result in a closure in merge_scores_of_stuckTogether_primers) */
   const char *n1=ap.names[i], *n2=ap.names[j];
   size_t l1=strlen(n1),l2=strlen(n2);
-  return (l1 == l2 && !strncmp(n1,n2,l1-1)); /* TODO: case-insensitive? */
+  return ((l1 == l2 && !strncmp(n1,n2,l1-1)) /* TODO: case-insensitive? */
+          || isIdentical(ap,i,j));
 }
 static inline void updateMax(int *i,int m) {
   if(m>*i) *i=m;
 }
 static int* merge_scores_of_stuckTogether_primers(AllPrimers ap,int *scores) {
-  int i,j,*p=scores; if(!p) return NULL;
+  int i,j,k,*p=scores; if(!p) return NULL;
   int *primerMove_depends_on=malloc(ap.np*sizeof(int));
   if(!primerMove_depends_on) return NULL;
   memset(primerMove_depends_on,0xFF,ap.np*sizeof(int));
+  int *pmdo_closureFind=malloc(ap.np*sizeof(int));
+  if(!pmdo_closureFind) {
+    free(primerMove_depends_on); return NULL;
+  }
   char *pairedOK=malloc(ap.np);
   if(!pairedOK) {
+    free(pmdo_closureFind);
     free(primerMove_depends_on); return NULL;
   }
   memset(pairedOK,0,ap.np);
+  for(i=0; i<ap.np; i++) pmdo_closureFind[i] = i;
+  for(i=0; i<ap.np; i++) for(j=i+1; j<ap.np; j++) if(should_stick_together(ap,i,j)) {
+        int iDep=pmdo_closureFind[i],
+          jDep=pmdo_closureFind[j];
+        if(jDep==j) pmdo_closureFind[j] = iDep;
+        else if(iDep==i) {
+          if(jDep < i) pmdo_closureFind[i]=jDep;
+          else for(k=jDep; k<ap.np; k++) if(pmdo_closureFind[k]==jDep) pmdo_closureFind[k]=i;
+        } else if(iDep!=jDep) {
+          int u=(iDep<jDep ? iDep : jDep);
+          for(k=u+1; k<ap.np; k++) if(pmdo_closureFind[k]==iDep || pmdo_closureFind[k]==jDep) pmdo_closureFind[k]=u;
+        }
+    }
   int doneMerge = 0;
   for(i=0; i<ap.np; i++) for(j=i; j<ap.np; j++) {
-      if(i!=j && primerMove_depends_on[i]==-1 && primerMove_depends_on[j]==-1 && should_stick_together(ap,i,j)) {
+      if(i!=j && pmdo_closureFind[j]==pmdo_closureFind[i]) {
         /* For simplicity of pooling, we'll set it so:
            - Interactions with i get maxed with those w.j
            - Interactions with j itself "don't count"
            - j is not allowed to be moved by itself
-           - j is always moved when i moves */
+           - j is always moved when i moves
+        */
         *p = 0; /* so S(i,j) = 0 */
         int k,*kp=scores; /* max S(k,i) with S(k,j): */
         int *Sip=0; /* =0 to suppress compiler warning */
@@ -313,6 +334,7 @@ static int* merge_scores_of_stuckTogether_primers(AllPrimers ap,int *scores) {
       }
       p++;
     }
+  free(pmdo_closureFind);
   if(doneMerge) {
     /* just check for lone primers, usually a bad sign */
     for(i=0; i<ap.np; i++) if(!pairedOK[i]) fprintf(stderr,"Warning: ungrouped primer %s\n",ap.names[i]);
@@ -392,11 +414,15 @@ static void randomise_pools(int np,const int *primerMove_depends_on,const int *f
   for(i=0; i<np; i++)
     if(primerMove_depends_on[i] == -1) {
       int pool = fix_to_pool[i];
+      if(pool>=nPools) {
+        fprintf(stderr, "ERROR: fixing primer to pool %d when there's only %d pools\n",pool+1,nPools);
+        abort();
+      }
       if(pool != -1) {
         if(maxCount && poolCounts[pool]==maxCount && !(maxCount==1 && nPools==np)) {
           /* (last part of that condition detects call by suggest_num_pools,
              where it's OK if fixed-pool primers make us exceed 1 per pool) */
-          fprintf(stderr, "randomise_pools ERROR: maxCount too small for fixed primer in pool %d\n",fix_to_pool[i]);
+          fprintf(stderr, "randomise_pools ERROR: maxCount too small for fixed primer in pool %d\n",fix_to_pool[i]+1);
           abort();
         } pools[i]=pool; poolCounts[pool]++;
       }

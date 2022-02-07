@@ -123,3 +123,8 @@ void printStats(AllPrimers ap,const int *pools,const int *precalcScores,FILE *f)
 void dGprintStats(AllPrimers ap,const int *pools,const int *precalcScores,FILE *f) {
   pStats64dG(ap.np,pools,precalcScores,f);
 }
+
+int isIdentical(AllPrimers ap,int i,int j) {
+  return ap.whichTag[i]==ap.whichTag[j] &&
+    Equal64(ap.forward.p64[i],ap.backward.p64[i]);
+}

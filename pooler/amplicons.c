@@ -267,7 +267,10 @@ static void fputs2(char *s,FILE *reportFile) {
 static void fprintf2(FILE *reportFile,char *s,...) {
   va_list v; va_start(v,s);
   vfprintf(stderr,s,v);
-  if(reportFile) vfprintf(reportFile,s,v);
+  if(reportFile) {
+    va_end(v); va_start(v,s);
+    vfprintf(reportFile,s,v);
+  }
   va_end(v);
 }
 static FILE* checkPF(int nPrimers) {

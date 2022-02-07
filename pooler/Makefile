@@ -31,9 +31,16 @@ mingw:
 win-crosscompile-old: 128.h 32.h 32-64.h
 	i386-mingw32-gcc -Wall -Os *.c -l comdlg32 -o pooler.exe -lm
 
-# Default compiler for Unix.  Some Macs have both cc and
-# gcc but only the gcc supports OpenMP, so prefer gcc.
-CC ?= $(shell if gcc --version >/dev/null 2>/dev/null; then echo gcc; else echo cc; fi)
+CC ?= cc
+ifeq ($(CC),cc)
+# ('make' by itself can behave like 'make CC=cc', so we
+# need to check for CC being equal to cc even if we didn't
+# have the ?= line above)
+# Some Macs have both cc and gcc but only the gcc
+# supports OpenMP, so prefer gcc if available and CC not
+# overridden to something other than "cc".
+CC=$(shell if gcc --version >/dev/null 2>/dev/null; then echo gcc; else echo cc; fi)
+endif
 
 # Default flags for Unix.  We add -mtune=native to the
 # default set if the compiler supports it (but NOT -march
@@ -117,6 +124,7 @@ publish: test-other
 	gzip -d pooler.tgz && zopfli --i1000 pooler.tar && mv pooler.tar.gz pooler.tgz && rm -f pooler.tar # save another 2k or so (but still use tgz in case someone doesn't have xz)
 	scp pooler.zip pooler.exe pooler64.exe pooler.tgz ds:homepage/pooler/
 	ssh ds 'CommitMsg_PrimerPooler="$(M)" homepage/update'
+	@rm pooler
 publish-src: test-other
 	make pooler.tgz
 	scp pooler.tgz ds:homepage/pooler/
