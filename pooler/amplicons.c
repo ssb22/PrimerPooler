@@ -475,7 +475,14 @@ char* GetOverlappingAmplicons(AllPrimers ap,FILE *genome,int* *primerNoToAmplico
       fclose(reportFile);
       fprintf(stderr,"This report has also been written to %s",reportFilename);
       /* and re-print the time in case they didn't see it above (long overlap list) */ prnSeconds((long)(time(NULL)-start)); fputs("\n",stderr);
-      if(found_primer_problems) { SetColour(Bright,White,Red); fputs("SOME PRIMERS WERE NOT FOUND: see start of the above.\n",stderr); ResetColour(); fputs("Possible causes:\n  - Mistakes in the primer file?\n  - Wrong reference genome?\n  - Reference genome sequence names contain _ or - (hg38 'variant' names)?\n  - Trying to use mRNA primers on a complete genome?\n    (If using mRNA, you'll need an exon-only version of the genome)\n",stderr); }
+      if(found_primer_problems) {
+        SetColour(Bright,White,Red);
+        fputs("SOME PRIMERS WERE NOT FOUND: see start of the above.\n",stderr);
+        ResetColour();
+        fputs("Possible causes:\n  - Mistakes in the primer file?\n  - Wrong reference genome?\n",stderr);
+        if(ignoreVars) fputs("  - Shouldn't be ignoring \"variant\" chromosome names in reference genome?\n",stderr);
+        fputs("  - Trying to use mRNA primers on a complete genome?\n    (If using mRNA, you'll need an exon-only version of the genome)\n",stderr);
+      }
       #ifndef Debug_ChromosomeCheck
       else { SetColour(Dark,Green,Black); fputs("(All primers were found in the genome.)\n",stderr); ResetColour(); }
       /* (not necessarily if we skipped the fopen because of Debug_ChromosomeCheck) */

@@ -282,6 +282,9 @@ Don\'t seed the random number generator
 Just show the program version number and exit\.
 .
 .SH "Changes"
+Defects fixed:
+.
+.P
 Version 1\.0 had important bugs that can affect results:
 .
 .IP "1." 4
@@ -303,6 +306,12 @@ Versions prior to 1\.34 would round down any decimal fraction you type when in i
 .
 .P
 Versions prior to 1\.37 did not ignore whitespace characters after FASTA labels\.
+.
+.P
+Version 1\.8 was briefly released with a regression that could sometimes result in pairs not being kept in the same pool; this was fixed in version 1\.81\.
+.
+.P
+Notable additions:
 .
 .P
 Version 1\.2 added the MultiPLX output option, and Version 1\.33 fixed a bug when MultiPLX output was used with tags and multiple chromosomes\. Version 1\.3 added genome reading from FASTA (not just 2bit), auto\-open browser, and suggest number of pools\.

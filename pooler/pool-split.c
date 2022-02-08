@@ -305,7 +305,7 @@ static int* merge_scores_of_stuckTogether_primers(AllPrimers ap,int *scores) {
     }
   int doneMerge = 0;
   for(i=0; i<ap.np; i++) for(j=i; j<ap.np; j++) {
-      if(i!=j && pmdo_closureFind[j]==pmdo_closureFind[i]) {
+      if(i!=j && primerMove_depends_on[i]==-1 && primerMove_depends_on[j]==-1 && pmdo_closureFind[j]==pmdo_closureFind[i]) {
         /* For simplicity of pooling, we'll set it so:
            - Interactions with i get maxed with those w.j
            - Interactions with j itself "don't count"

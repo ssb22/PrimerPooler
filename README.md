@@ -231,6 +231,8 @@ Processing options should be placed before this filename. Options are as follows
 Changes
 -------
 
+Defects fixed:
+
 Version 1.0 had important bugs that can affect results:
 
 1. an error in incremental-update logic sometimes had the effect of generating suboptimal solutions (in particular, pools could be unnecessarily empty, and/or full beyond any limit that was set);
@@ -244,6 +246,10 @@ Versions prior to 1.17 also had a display bug: the concentrations for the deltaG
 Versions prior to 1.34 would round down any decimal fraction you type when in interactive mode (for deltaG temperature, concentration and threshold settings). Internal calculation and command-line use was not affected by this bug.
 
 Versions prior to 1.37 did not ignore whitespace characters after FASTA labels.
+
+Version 1.8 was briefly released with a regression that could sometimes result in pairs not being kept in the same pool; this was fixed in version 1.81.
+
+Notable additions:
 
 Version 1.2 added the MultiPLX output option, and Version 1.33 fixed a bug when MultiPLX output was used with tags and multiple chromosomes. Version 1.3  added genome reading from FASTA (not just 2bit), auto-open browser, and suggest number of pools.
 
