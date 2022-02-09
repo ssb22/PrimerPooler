@@ -92,6 +92,7 @@ static inline void ConsoleTitle(const char *t) {
   #endif
 #else
   if(CanDoANSI()) {
+    if(!*t) fprintf(stderr,"\033]0; \007"); /* some xterms won't clear on 0-length string, so set space first */
     fprintf(stderr,"\033]0;%s\007",t);
     if(*t) CT_SetSignals();
   }

@@ -6,5 +6,5 @@ ssh freebsd 'cd /usr/ports/biology/pooler/ && rm -f Makefile pkg-descr && wget h
 scp Makefile pkg-descr freebsd:/usr/ports/biology/pooler/ &&
 ssh freebsd 'cd /usr/ports/biology/pooler/ && rm -f distinfo && make makesum && portlint -A && git commit * -m "biology/pooler: update to '"$(grep -m 1 '^#.*Program_Version' ../pooler/version.h|cut -d ' ' -f5|tr -d '"')"'"' &&
 ssh freebsd 'cd /usr/ports && git format-patch --stdout -1' > pooler.mbox &&
-echo "pooler.mbox to https://bugs.freebsd.org/bugzilla/enter_bug.cgi (as plain-text attachment if possible)"
+echo "pooler.mbox to https://bugs.freebsd.org/bugzilla/enter_bug.cgi (as plain-text attachment + set URL to http://ssb22.user.srcf.net/pooler/#changes )"
 echo "If the diff is wrong and we need to re-run update.sh after a change, first do: ssh freebsd 'cd /usr/ports;git reset --hard HEAD~1'"

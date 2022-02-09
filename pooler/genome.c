@@ -142,6 +142,7 @@ static void readFastaSeqName(FILE *f) {
   if(!fgets(lastSequenceNameRead,sizeof(SeqName),f))
     *lastSequenceNameRead = 0;
   if(lastSequenceNameRead[strlen(lastSequenceNameRead)-1]!='\n') {
+    /* truncate sequence name: didn't fit in SeqName */
     while (fgetc(f) != '\n') { if(feof(f)) break; }
   }
   lastSequenceNameRead[strcspn(lastSequenceNameRead," \t\r\n")]=0;
@@ -150,13 +151,14 @@ static void takeFastaSeqName(FILE *f,const char *buf) {
   strcpy(lastSequenceNameRead,buf+1); /* ignore '>' */
   lastSequenceNameRead[strcspn(lastSequenceNameRead," \t\r\n")]=0;
   if(buf[strlen(buf)-1]!='\n') {
+    /* truncate sequence name that didn't fit in buf */
     while (fgetc(f) != '\n') { if(feof(f)) break; }
   }
 }
 
 static SeqName* fasta_genome(FILE *f,int ignoreVars) {
   fprintf(stderr,"Reading genome from FASTA file\n(slower than .2bit; may take time)\n");
-  int seqNo=0; char buf[80];
+  int seqNo=0; char buf[256];
   SeqName *seqNames=NULL;
   while(!feof(f)) {
     if(seqNo) takeFastaSeqName(f,buf);

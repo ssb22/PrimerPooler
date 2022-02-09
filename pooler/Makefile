@@ -13,7 +13,7 @@
 # limitations under the License.
 
 pooler: 128.h 32.h 32-64.h
-	$(CC) $(CFLAGS) $(OpenMpFlag) *.c -o pooler -lm
+	$(PCC) $(CFLAGS) $(OpenMpFlag) *.c -o pooler -lm
 
 win-crosscompile: pooler.exe pooler64.exe
 .PHONY: win-crosscompile mingw publish
@@ -32,15 +32,13 @@ win-crosscompile-old: 128.h 32.h 32-64.h
 	i386-mingw32-gcc -Wall -Os *.c -l comdlg32 -o pooler.exe -lm
 
 CC ?= cc
-ifeq ($(CC),cc)
-# ('make' by itself can behave like 'make CC=cc', so we
-# need to check for CC being equal to cc even if we didn't
-# have the ?= line above)
 # Some Macs have both cc and gcc but only the gcc
 # supports OpenMP, so prefer gcc if available and CC not
 # overridden to something other than "cc".
-CC=$(shell if gcc --version >/dev/null 2>/dev/null; then echo gcc; else echo cc; fi)
-endif
+# ('make' by itself can behave like 'make CC=cc', so we
+# need to check for CC being equal to cc even if we didn't
+# have the ?= line above)
+PCC=$$([ "$(CC)" = cc ] && sh -c "gcc --version 2>/dev/null >/dev/null" && echo gcc || echo "$(CC)")
 
 # Default flags for Unix.  We add -mtune=native to the
 # default set if the compiler supports it (but NOT -march
@@ -48,7 +46,7 @@ endif
 # but we allow a user CFLAGS to override all of this.
 UnixFlags=-Wall -O3
 # (some distros have a buggy -flto, so don't use that)
-MTuneFlag=$(shell echo 'int main(){}' > _test.c; if $(CC) -mtune=native _test.c -o /dev/null 2>/dev/null; then echo -mtune=native; fi; rm _test.c)
+MTuneFlag=$$(echo 'int main(){}' > _test.c; if $(PCC) -mtune=native _test.c -o /dev/null 2>/dev/null; then echo -mtune=native; fi; rm _test.c)
 CFLAGS ?= $(UnixFlags) $(MTuneFlag)
 
 # But, we definitely want the -fopenmp flag if supported by the compiler.
@@ -56,7 +54,7 @@ CFLAGS ?= $(UnixFlags) $(MTuneFlag)
 # So we have -fopenmp even if CFLAGS is set without it, if CC supports it
 # (i.e. we don't rely on the user to remember to include -fopenmp in CFLAGS,
 # although they can still use a compiler without support)
-OpenMpFlag=$(shell echo 'int main(){}' > _test.c; if $(CC) -fopenmp _test.c -o /dev/null 2>/dev/null; then echo -fopenmp; fi; rm _test.c)
+OpenMpFlag=$$(echo 'int main(){}' > _test.c; if $(PCC) -fopenmp _test.c -o /dev/null 2>/dev/null; then echo -fopenmp; fi; rm _test.c)
 
 # Flags for cross-compiling to Windows:
 WinFlags=-Wall -Os -flto -static -fopenmp # TODO: comdlg32 etc doesn't have to be static, only OpenMP/pthread (but low-priority because comdlg32 itself is only 20k or so)
@@ -94,8 +92,8 @@ pooler.tgz: clean
 	rm -rf release
 # check things still at least compile:
 test-other: 128.h 32.h 32-64.h
-	$(CC) $(CFLAGS) $(OpenMpFlag) -m32 *.c -o /dev/null # 32-64.h
-	$(CC) $(CFLAGS) $(OpenMpFlag) -D__ARM_ARCH_ISA_A64 *.c -o /dev/null # 64-only.h
+	$(PCC) $(CFLAGS) $(OpenMpFlag) -m32 *.c -o /dev/null # 32-64.h
+	$(PCC) $(CFLAGS) $(OpenMpFlag) -D__ARM_ARCH_ISA_A64 *.c -o /dev/null # 64-only.h
 # Use of UPX to reduce .exe size and save server space.
 # This won't give as good a compression as .zip or .7z,
 # but Windows unfortunately gives users the impression

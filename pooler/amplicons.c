@@ -342,15 +342,15 @@ static int findEndEvent(int seq,int startEvent,int maxAmpliconLen) {
   #endif
   return 0;
 }
-static inline void checkOverlaps(int ampNo,int nAmp,char *overlaps,int *inProgress,int *inProgressI,int *nOverlaps,FILE* *reportFileP,AmpEvent *events,int i,int end,SeqName *names,int seqNo,int strand,int maxAmpliconLen) {
+static inline void checkOverlaps(int ampNo,int nAmp,char *overlaps,int *inProgress,int *inProgressI,int *nOverlaps,FILE* *reportFileP,AmpEvent *events,int eventNo,int endEventNo,SeqName *names,int seqNo,int strand,int maxAmpliconLen) {
   int prnOver=0, j;
-  if (i==end) {
+  if (eventNo==endEventNo) {
     SetColour(Bright,Blue,Black);
-    fprintf2(*reportFileP,"WARNING: Found alternative product involving non-unique primer %s (%s:%u%c%u), treating as overlap\n",events[i].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[i].baseEnd);
+    fprintf2(*reportFileP,"WARNING: Found alternative product involving non-unique primer %s (%s:%u%c%u), treating as overlap\n",events[eventNo].name,&(names[seqNo][0]),events[eventNo].baseStart,((strand==1)?'+':'-'),events[eventNo].baseEnd);
     ResetColour();
   }
   for(j=0; j<nAmp; j++)
-    if(j!=ampNo && (inProgress[j]/* EITHER strand, as per versions prior to 1.6; Version 1.6 also checked strand but this is incorrect as the complement will be amplified too; f ixed in Version 6.1 released a few hours later 2019-06-15 Sat. */) && !overlaps[ampNo*nAmp+j]) {
+    if(j!=ampNo && (inProgress[j]/* EITHER strand, as per versions prior to 1.6; Version 1.6 also checked strand but this is incorrect as the complement will be amplified too; fixed in Version 6.1 released a few hours later 2019-06-15 Sat. */) && !overlaps[ampNo*nAmp+j]) {
       overlaps[ampNo*nAmp+j] =
         overlaps[j*nAmp+ampNo] = 1;
       if(prnOver) fputs(", ",stderr); else {
@@ -359,7 +359,7 @@ static inline void checkOverlaps(int ampNo,int nAmp,char *overlaps,int *inProgre
           fputs2("Overlapping amplicons:\n",*reportFileP);
         }
         /* print the "new" amplicon first */
-        fprintf2(*reportFileP,"%s:%s (%s:%u%c%u) / ",events[i].name,events[end].name,&(names[seqNo][0]),events[i].baseStart,((strand==1)?'+':'-'),events[end].baseEnd);
+        fprintf2(*reportFileP,"%s:%s (%s:%u%c%u) / ",events[eventNo].name,(eventNo==endEventNo?"unmatched":events[endEventNo].name),&(names[seqNo][0]),events[eventNo].baseStart,((strand==1)?'+':'-'),events[endEventNo].baseEnd);
         prnOver=1;
       }
       (*nOverlaps)++;
@@ -392,7 +392,7 @@ static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *
       else { /* added in v1.6, isolated end-event */
         int j; for(j=0; j<nAmp; j++)
                  if(inProgress[j]) break;
-        if(j<nAmp) {
+        if(j<nAmp) /* something is in progress around our isolated end */ {
           checkOverlaps(ampNo,nAmp,overlaps,inProgress,inProgressI,&nOverlaps,reportFileP,events,i,i,names,seqNo,-onOrOff_and_Strand,maxAmpliconLen);
         }
       }
@@ -403,10 +403,10 @@ static char* eventsToOverlaps(int nAmp,int maxAmpliconLen,SeqName *names,FILE* *
       ResetColour();
     } else { /* start */
       int end=findEndEvent(seqNo,i,maxAmpliconLen);
-      if(!end) { /* added in v1.6, isolated start  */
+      if(!end) { /* added in v1.6, isolated start */
         int j; for(j=0; j<nAmp; j++)
                  if(inProgress[j]) break;
-        if(j<nAmp) checkOverlaps(ampNo,nAmp,overlaps,inProgress,inProgressI,&nOverlaps,reportFileP,events,i,i,names,seqNo,onOrOff_and_Strand,maxAmpliconLen);
+        if(j<nAmp) /* something is in progress around our isolated start */ checkOverlaps(ampNo,nAmp,overlaps,inProgress,inProgressI,&nOverlaps,reportFileP,events,i,i,names,seqNo,onOrOff_and_Strand,maxAmpliconLen);
         continue;
       }
       ampsFound[ampNo] = 1;

@@ -259,7 +259,7 @@ Version 1.4 allows tags to be changed part-way through a FASTA file. For example
 
 Version 1.5 allows primer sets to be “fixed” to predetermined pools by specifying these as primer name prefixes, e.g. `>@2:myPrimer-F` fixes `myPrimer-F` to pool 2.
 
-Version 1.6 detects and warns about alternative products of non-unique PCR.  It was followed within hours by Version 1.61 which fixed a regression in the amplicon overlap check.
+Version 1.6 detects and warns about alternative products of non-unique PCR.  It was followed within hours by Version 1.61 which fixed a regression in the amplicon overlap check.  Reporting was improved in version 1.82.
 
 Version 1.7 makes the ignoring of variant sequences in the genome optional, and warns if primers not being found might be due to variant sequences having been ignored.
 
