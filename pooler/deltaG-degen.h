@@ -42,30 +42,3 @@ static inline float minDGdegenerate(int MaybeA12,int MaybeC12,int MaybeG12,int M
   inBits[14] = MaybeG34 & 1; inBits[15] = MaybeT34 & 1;
   return _minDGdegenerate(0,5,inBits,table);
 }
-
-static inline int nearlyEqual(float a,float b) {
-  /* After having calculated minDG, the output code
-     ought to be able to say if dG==minDG to check
-     it's seeing the minimum one again.  In theory,
-     rounding error shouldn't matter as long as we
-     take the EXACT same steps for both calculations
-     (rouding errors should be exactly identical).
-     In practice, when compiling with optimisation,
-     some of GCC's optimisations result in floating-
-     point calculations becoming slightly different
-     in different places (reordering etc), and it's
-     NOT guaranteed that you'll get the exact same
-     bits from two different parts of the program
-     that seemingly do the same thing!  So we have
-     to do the "nearly equal" thing.
-     
-     TODO: this won't work at threshold 0 if there
-     are very small <0 deltaG's (but those are not
-     likely to be accurate anyway: take them out?
-     insist on a threshold of at least -1 ?) could
-     adapt the 0.001 but beware of slowing it down
-     (if b is a min, try b += fabs(b)*0.0001 before
-     the loop)
-  */
-  return fabs(a-b) <= 0.001;
-}

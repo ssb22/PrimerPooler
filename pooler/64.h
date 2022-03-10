@@ -650,8 +650,9 @@ static inline bit64 rm_unstable_bonds64(bit64 bonds,bit64 overlap) {
   lone_1s &= (overlap>>1); /* left-hand bit is never got rid of */
   return bonds & ~lone_1s;
 }
-static inline float deltaG64(Primer64 p1,Primer64 p2,const float* table) {
-  /* like score64 but does deltaG instead */
+static inline float deltaG64WithPos(Primer64 p1,Primer64 p2,const float* table,int *pos) {
+  /* Like score64 but does deltaG instead.
+     Also puts position of minimum deltaG into pos. */
   int sL=(64 - 1/*threshold*/) - leading0_64(p2.valid);
   float minDG = INFINITY;
   Primer64 p1B;
@@ -659,6 +660,7 @@ static inline float deltaG64(Primer64 p1,Primer64 p2,const float* table) {
   p1B.valid = p1.valid << sL;
   int reload = sL - leading0_64(p1.valid);
   if(reload<0) reload=0;
+  int curPos=0;
   while(1) {
     bit64 overlap = p1B.valid & p2.valid;
     if(!overlap) return minDG;
@@ -669,7 +671,7 @@ static inline float deltaG64(Primer64 p1,Primer64 p2,const float* table) {
     for(; mask>=maskEnd; mask>>=1,shift--)
       dG += table[(((p1B.AorT & mask)>>shift)<<6) | (((p1B.GorT & mask)>>shift)<<4) | (((p2.AorT & mask)>>shift)<<2) | ((p2.GorT & mask)>>shift)];
     dG += table[256+((p1B.AorT & mask)>>(shift+1))]; // init at end
-    minDG = (dG < minDG ? dG : minDG);
+    if (dG < minDG) { minDG = dG; *pos = curPos; }
     if(reload) {
       --sL;
       p1B.AorT = p1.AorT << sL; p1B.GorT = p1.GorT << sL;
@@ -677,9 +679,11 @@ static inline float deltaG64(Primer64 p1,Primer64 p2,const float* table) {
     } else {
       p1B.AorT >>=1; p1B.GorT >>=1; p1B.valid >>=1;
     }
+    ++curPos;
   }
 }
-static inline float deltaG64D(DegeneratePrimer64 p1,DegeneratePrimer64 p2,const float* table) {
+static inline float deltaG64(Primer64 p1,Primer64 p2,const float* table) { int p; return deltaG64WithPos(p1,p2,table,&p); }
+static inline float deltaG64DWithPos(DegeneratePrimer64 p1,DegeneratePrimer64 p2,const float* table,int *pos) {
   bit64 p1Valid = DegenerateValid64(p1),
     p2Valid = DegenerateValid64(p2);
   int sL=(64 - 1/*threshold*/) - leading0_64(p2Valid);
@@ -692,6 +696,7 @@ static inline float deltaG64D(DegeneratePrimer64 p1,DegeneratePrimer64 p2,const 
   bit64 p1Bvalid = p1Valid << sL;
   int reload = sL - leading0_64(p1Valid);
   if(reload<0) reload=0;
+  int curPos = 0;
   while(1) {
     bit64 overlap = p1Bvalid & p2Valid;
     if(!overlap) return minDG;
@@ -705,7 +710,7 @@ static inline float deltaG64D(DegeneratePrimer64 p1,DegeneratePrimer64 p2,const 
     for(; mask>=maskEnd; mask>>=1,shift--)
       dG += minDGdegenerate((p1B.MaybeA & mask)>>shift,(p1B.MaybeC & mask)>>shift,(p1B.MaybeG & mask)>>shift,(p1B.MaybeT & mask)>>shift,(p2.MaybeA & mask)>>shift,(p2.MaybeC & mask)>>shift,(p2.MaybeG & mask)>>shift,(p2.MaybeT & mask)>>shift,table);
     dG += table[256+!(((p1B.MaybeC|p1B.MaybeG) & mask)>>(shift+1))];
-    minDG = (dG < minDG ? dG : minDG);
+    if (dG < minDG) { minDG = dG; *pos = curPos; }
     if(reload) {
       --sL;
       p1B.MaybeA = p1.MaybeA << sL;
@@ -717,84 +722,80 @@ static inline float deltaG64D(DegeneratePrimer64 p1,DegeneratePrimer64 p2,const 
       p1B.MaybeA >>=1; p1B.MaybeC >>=1; p1B.MaybeG >>=1;
       p1B.MaybeT >>=1; p1Bvalid >>=1;
     }
+    ++curPos;
   }
 }
+static inline float deltaG64D(DegeneratePrimer64 p1,DegeneratePrimer64 p2,const float* table) { int p; return deltaG64DWithPos(p1,p2,table,&p); }
 static inline float deltaG64MaybeD(MaybeDegeneratePrimer64 p1,MaybeDegeneratePrimer64 p2,const float* table) {
   if(p1.isD || p2.isD) return deltaG64D(upgradeToDegenerate64(p1),upgradeToDegenerate64(p2),table);
   else return deltaG64(p1.p.notD,p2.p.notD,table);
 }
-static void dGprint64(Primer64 p1,Primer64 p2,float minDG,FILE *f,const float *table) {
-  int sL=(64 - 1) - leading0_64(p2.valid);
-  int sR = 0; Primer64 p1B;
-  while(1) {
-    if(sL) {
-      p1B.AorT = p1.AorT << sL; p1B.GorT = p1.GorT << sL;
-      p1B.valid = p1.valid << sL;
-    } else {
-      p1B.AorT = p1.AorT >> sR; p1B.GorT = p1.GorT >> sR;
-      p1B.valid = p1.valid >> sR;
-      assert(p1B.valid); /* if this breaks, check the range of nearlyEqual */
-    }
-    bit64 overlap = p1B.valid & p2.valid;
-    bit64 bonds0 = (~(p1B.AorT ^ p2.AorT)) & (p1B.GorT ^ p2.GorT) & overlap,
-      bonds = rm_unstable_bonds64(bonds0, overlap);
-    int shift = 64-2-leading0_64(bonds); bit64 mask=(bit64)3 << shift,
-      maskEnd = (bit64)3 << trail0_64(bonds);
-    float dG = table[256+((p1B.AorT & mask)>>(shift+1))]; // init
-    for(; mask>=maskEnd; mask>>=1,shift--)
-      dG += table[(((p1B.AorT & mask)>>shift)<<6) | (((p1B.GorT & mask)>>shift)<<4) | (((p2.AorT & mask)>>shift)<<2) | ((p2.GorT & mask)>>shift)];
-    dG += table[256+((p1B.AorT & mask)>>(shift+1))]; // init at end
-    if(nearlyEqual(dG,minDG)) {
-      fprintf(f,"dG = %.3g\n",dG);
-      print64_inner(p1,sL-sR,p2,overlap,bonds0,f);
-      return;
-    }
-    if(sL) sL--; else sR++;
-  }
+static inline float deltaG64MaybeDWithPos(MaybeDegeneratePrimer64 p1,MaybeDegeneratePrimer64 p2,const float* table,int *pos) {
+  if(p1.isD || p2.isD) return deltaG64DWithPos(upgradeToDegenerate64(p1),upgradeToDegenerate64(p2),table,pos);
+  else return deltaG64WithPos(p1.p.notD,p2.p.notD,table,pos);
 }
-static void dGprint64D(DegeneratePrimer64 p1,DegeneratePrimer64 p2,float minDG,FILE *f,const float *table) {
-  int sL=(64 - 1) - leading0_64(DegenerateValid64(p2));
-  int sR = 0; DegeneratePrimer64 p1B;
-  while(1) {
-    if(sL) {
-      p1B.MaybeA = p1.MaybeA << sL;
-      p1B.MaybeC = p1.MaybeC << sL;
-      p1B.MaybeG = p1.MaybeG << sL;
-      p1B.MaybeT = p1.MaybeT << sL;
-    } else {
-      p1B.MaybeA = p1.MaybeA >> sR;
-      p1B.MaybeC = p1.MaybeC >> sR;
-      p1B.MaybeG = p1.MaybeG >> sR;
-      p1B.MaybeT = p1.MaybeT >> sR;
-      assert(sR < 64); /* if this breaks, check the range of nearlyEqual */
-    }
-    bit64 overlap = DegenerateValid64(p1B) & DegenerateValid64(p2);
-    bit64 bonds0 = (p1B.MaybeA & p2.MaybeT) |
-      (p1B.MaybeC & p2.MaybeG) |
-      (p1B.MaybeG & p2.MaybeC) |
-      (p1B.MaybeT & p2.MaybeA),
-      bonds = rm_unstable_bonds64(bonds0,overlap);
-    int shift = 64-2-leading0_64(bonds); bit64 mask=(bit64)3 << shift,
-      maskEnd = (bit64)3 << trail0_64(bonds);
-    float dG = table[256+!(((p1B.MaybeC|p1B.MaybeG) & mask)>>(shift+1))]; // init (worst-case scenario is C or G)
-    for(; mask>=maskEnd; mask>>=1,shift--)
-      dG += minDGdegenerate((p1B.MaybeA & mask)>>shift,(p1B.MaybeC & mask)>>shift,(p1B.MaybeG & mask)>>shift,(p1B.MaybeT & mask)>>shift,(p2.MaybeA & mask)>>shift,(p2.MaybeC & mask)>>shift,(p2.MaybeG & mask)>>shift,(p2.MaybeT & mask)>>shift,table);
-    dG += table[256+!(((p1B.MaybeC|p1B.MaybeG) & mask)>>(shift+1))];
-    if(nearlyEqual(dG,minDG)) {
-      fprintf(f,"dG = %.3g\n",dG);
-      print64D_inner(p1,sL-sR,p2,overlap,bonds0,f);
-      return;
-    }
-    if(sL) sL--; else sR++;
+static void dGprint64(Primer64 p1,Primer64 p2,FILE *f,const float *table,int pos) {
+  int sL=(64 - 1) - leading0_64(p2.valid) - pos, sR = 0;
+  if (sL < 0) { sR = -sL; sL = 0; }
+  Primer64 p1B;
+  if(sL) {
+    p1B.AorT = p1.AorT << sL; p1B.GorT = p1.GorT << sL;
+    p1B.valid = p1.valid << sL;
+  } else {
+    p1B.AorT = p1.AorT >> sR; p1B.GorT = p1.GorT >> sR;
+    p1B.valid = p1.valid >> sR;
   }
+  bit64 overlap = p1B.valid & p2.valid;
+  bit64 bonds0 = (~(p1B.AorT ^ p2.AorT)) & (p1B.GorT ^ p2.GorT) & overlap,
+    bonds = rm_unstable_bonds64(bonds0, overlap);
+  int shift = 64-2-leading0_64(bonds);
+  bit64 mask=(bit64)3 << shift,
+    maskEnd = (bit64)3 << trail0_64(bonds);
+  float dG = table[256+((p1B.AorT & mask)>>(shift+1))]; // init
+  for(; mask>=maskEnd; mask>>=1,shift--)
+    dG += table[(((p1B.AorT & mask)>>shift)<<6) | (((p1B.GorT & mask)>>shift)<<4) | (((p2.AorT & mask)>>shift)<<2) | ((p2.GorT & mask)>>shift)];
+  dG += table[256+((p1B.AorT & mask)>>(shift+1))]; // init at end
+  fprintf(f,"dG = %.3g\n",dG);
+  print64_inner(p1,sL-sR,p2,overlap,bonds0,f);
 }
-static void dGprint64MaybeD(MaybeDegeneratePrimer64 p1,MaybeDegeneratePrimer64 p2,const char *name1,const char *name2,float minDG,FILE *f,const float *table) {
+static void dGprint64D(DegeneratePrimer64 p1,DegeneratePrimer64 p2,FILE *f,const float *table,int pos) {
+  int sL=(64 - 1) - leading0_64(DegenerateValid64(p2)) - pos, sR = 0;
+  if (sL < 0) { sR = -sL; sL = 0; }
+  DegeneratePrimer64 p1B;
+  if(sL) {
+    p1B.MaybeA = p1.MaybeA << sL;
+    p1B.MaybeC = p1.MaybeC << sL;
+    p1B.MaybeG = p1.MaybeG << sL;
+    p1B.MaybeT = p1.MaybeT << sL;
+  } else {
+    p1B.MaybeA = p1.MaybeA >> sR;
+    p1B.MaybeC = p1.MaybeC >> sR;
+    p1B.MaybeG = p1.MaybeG >> sR;
+    p1B.MaybeT = p1.MaybeT >> sR;
+  }
+  bit64 overlap = DegenerateValid64(p1B) & DegenerateValid64(p2);
+  bit64 bonds0 = (p1B.MaybeA & p2.MaybeT) |
+    (p1B.MaybeC & p2.MaybeG) |
+    (p1B.MaybeG & p2.MaybeC) |
+    (p1B.MaybeT & p2.MaybeA),
+    bonds = rm_unstable_bonds64(bonds0,overlap);
+  int shift = 64-2-leading0_64(bonds);
+  bit64 mask=(bit64)3 << shift,
+    maskEnd = (bit64)3 << trail0_64(bonds);
+  float dG = table[256+!(((p1B.MaybeC|p1B.MaybeG) & mask)>>(shift+1))]; // init (worst-case scenario is C or G)
+  for(; mask>=maskEnd; mask>>=1,shift--)
+    dG += minDGdegenerate((p1B.MaybeA & mask)>>shift,(p1B.MaybeC & mask)>>shift,(p1B.MaybeG & mask)>>shift,(p1B.MaybeT & mask)>>shift,(p2.MaybeA & mask)>>shift,(p2.MaybeC & mask)>>shift,(p2.MaybeG & mask)>>shift,(p2.MaybeT & mask)>>shift,table);
+  dG += table[256+!(((p1B.MaybeC|p1B.MaybeG) & mask)>>(shift+1))];
+  fprintf(f,"dG = %.3g\n",dG);
+  print64D_inner(p1,sL-sR,p2,overlap,bonds0,f);
+}
+static void dGprint64MaybeD(MaybeDegeneratePrimer64 p1,MaybeDegeneratePrimer64 p2,const char *name1,const char *name2,FILE *f,const float *table,int pos) {
   if(!name1 || !*name1) name1="(no name)";
   if(!name2 || !*name2) name2="(no name)";
   fprintf(f,"%s versus %s\n",name1,name2);
   count64MaybeD(p1,p2,f);
-  if(p1.isD || p2.isD) dGprint64D(upgradeToDegenerate64(p1),upgradeToDegenerate64(p2),minDG,f,table);
-  else dGprint64(p1.p.notD,p2.p.notD,minDG,f,table);
+  if(p1.isD || p2.isD) dGprint64D(upgradeToDegenerate64(p1),upgradeToDegenerate64(p2),f,table,pos);
+  else dGprint64(p1.p.notD,p2.p.notD,f,table,pos);
   fputc('\n',f);
 }
 static void dGprintBonds64(const MaybeDegeneratePrimer64 *forward,const MaybeDegeneratePrimer64 *backward,int np,FILE *f,float threshold,char* *names,const int *pools,const float *table) {
@@ -811,14 +812,16 @@ static void dGprintBonds64(const MaybeDegeneratePrimer64 *forward,const MaybeDeg
     for(i=tr.r[r].start; i<tr.r[r].end; i++,sr?t_Progress("Sorting... ",tr,np,done,&next):0,done+=np-i)
     for(j=i; j<np; j++) {
       if(!pools || pools[i]==pools[j]) {
-        float dG = deltaG64MaybeD(forward[i],backward[j],table);
+        int pos;
+        float dG = deltaG64MaybeDWithPos(forward[i],backward[j],table,&pos);
         if (dG <= threshold) {
           #if defined(_OPENMP)
           #pragma omp critical
           #endif
           if(sr) {
+            sr2->pos = pos;
             sr2->dG = dG; sr2->i = i; (sr2++)->j = j;
-          } else dGprint64MaybeD(forward[i],backward[j],names[i],names[j],dG,f,table);
+          } else dGprint64MaybeD(forward[i],backward[j],names[i],names[j],f,table,pos);
         }
       }
     }
@@ -835,7 +838,7 @@ static void dGprintBonds64(const MaybeDegeneratePrimer64 *forward,const MaybeDeg
         fprintf(stderr,"\rOutputting... (%d%%) ",100*(int)(s-sr)/(int)(sr2-sr)); fflush(stderr);
         next = time(NULL) + 2;
       }
-      dGprint64MaybeD(forward[s->i],backward[s->j],names[s->i],names[s->j],s->dG,f,table);
+      dGprint64MaybeD(forward[s->i],backward[s->j],names[s->i],names[s->j],f,table,s->pos);
     }
     free(sr);
     if(f!=stdout) { fputs("\rOutputting... done",stderr); prnSeconds((long)(time(NULL)-start)); fputs("\n",stderr); fflush(stderr); }

@@ -45,8 +45,9 @@ static inline int t_offset(int n,int i,int j) {
 typedef struct { int start,end; } Range;
 typedef struct { Range r[2]; } TwoRanges;
 static inline TwoRanges t_iBounds(int n) {
-  /* distribute bounds to evenly schedule among threads.
-     Work units should look like:
+  /* Distribute bounds to evenly schedule among threads.
+     Starting lower = more work in inner loop i to np, so
+     for even distribution, work units should look like:
      0..1 and n..n
      1..2 and n-1..n
      2..3 and n-2..n-1
@@ -56,17 +57,21 @@ static inline TwoRanges t_iBounds(int n) {
   int nThreads = omp_get_num_threads(),
     perThread = n/2/nThreads, /* NB it's rounded down */
     tNum = omp_get_thread_num();
-  if(!perThread) { /* unlikely but we should cover it */ nThreads=n/2; if(tNum>=nThreads) { t.r[0].start=t.r[0].end=t.r[1].start=t.r[1].end=0; return t; } else perThread=1; }
+  if(!perThread) { /* more cores than pairs (may happen with small test sets on large machines) */
+    nThreads=n/2;
+    if(tNum>=nThreads) { /* no work for this thread */
+      t.r[0].start=t.r[0].end=t.r[1].start=t.r[1].end=0;
+      return t;
+    } else perThread=1; }
   t.r[0].start = tNum*perThread;
   if(tNum==nThreads-1) {
-    /* careful, due the above round-down */
+    /* careful, due to the above round-down */
     t.r[0].end = t.r[1].start = n/2; /* make SURE they meet in the middle and nothing gets left out */
   } else {
     t.r[0].end = (tNum+1)*perThread;
     t.r[1].start = n-(tNum+1)*perThread;
   }
   t.r[1].end = n-tNum*perThread;
-  if(t.r[0].start==t.r[1].start) t.r[1].start=n;
   return t;
 }
 static inline time_t t_ProgressStart(const char *p) { fputs(p,stderr); fflush(stderr); return time(NULL)+2; }

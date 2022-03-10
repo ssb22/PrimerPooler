@@ -202,8 +202,10 @@ SeqName* go_through_genome(FILE *f,int ignoreVars) {
   SeqName *seqNames=NULL; int numSeqNames=0;
   time_t start = time(NULL);
   time_t nextDisplay = start + 1;
-  if(omp_get_max_threads() > 1) {
-    fprintf(stderr,"Parallelising scan (up to %d chromosomes simultaneously)\n",omp_get_max_threads());
+  int maxThreads = omp_get_max_threads();
+  if(maxThreads > 1) {
+    if (nSeq > maxThreads) fprintf(stderr,"Parallelising scan (up to %d chromosomes simultaneously)\n",maxThreads); // "up to" because the final few iterations might have fewer than maxThreads left to do
+    else fprintf(stderr,"Parallelising scan (all %d chromosomes simultaneously)\n",nSeq); // don't confuse users of 100+ core servers
   }
   int seqNo; char progressBuf[80]={0}; /* TODO: different screen widths?  (low priority because it could just scroll, but 8 cores on a narrow terminal could be messy) */ enum { ProgWidthPerThread = 13 /* sequence name width is this minus 5; try to divide into the screen width and also allow for the possiblity of narrower terminals */ };
   #if PARALLELIZE_CHROMOSOMES && defined(_OPENMP)

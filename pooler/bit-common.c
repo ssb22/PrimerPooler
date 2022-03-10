@@ -31,7 +31,7 @@ static void indent(int n,FILE*f){while(n--)fputc(' ',f);}
 static const char degenerateCombos[]="TGKCYSBAWRDMHVN";
 static void reportUnrecognisedBase(unsigned char b);
 typedef struct { int score, i, j; } ScoreRecord;
-typedef struct { float dG; int i, j; } DG_ScoreRecord;
+typedef struct { float dG; int i,j,pos; } DG_ScoreRecord;
 static int highestScore1st(const void * a, const void *b) {
   /* for printBonds: print highest-scoring 1st, else keep input order */
   int r = ((ScoreRecord*)b)->score - ((ScoreRecord*)a)->score; /* <0 if A higher */
