@@ -8,6 +8,8 @@ discussed at [257975](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=257975))
 v1.78 update was [541454f](https://cgit.FreeBSD.org/ports/commit/?id=541454f9939d3836bc1bcf642f8c748a1d04bb80)
 discussed at [258120](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=258120),
 v1.82 update was [8d34513](https://cgit.freebsd.org/ports/commit/?id=8d34513c3f7ac851134d8452109c28497f0442cb)
-discussed at [261741](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=261741)
+discussed at [261741](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=261741),
+v1.83 update was
+discussed at [262498](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=262498)
 
 FreeBSD users should be able to install it via `pkg install pooler`
