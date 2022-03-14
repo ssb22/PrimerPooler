@@ -33,12 +33,13 @@ win-crosscompile-old: 128.h 32.h 32-64.h
 
 CC ?= cc
 # Some Macs have both cc and gcc but only the gcc
-# supports OpenMP, so prefer gcc if available and CC not
-# overridden to something other than "cc".
+# supports OpenMP, so if we're on a Mac then prefer gcc
+# if available and CC not overridden to something other
+# than "cc".  (Do this ONLY on a Mac, not FreeBSD etc.)
 # ('make' by itself can behave like 'make CC=cc', so we
 # need to check for CC being equal to cc even if we didn't
 # have the ?= line above)
-PCC=$$([ "$(CC)" = cc ] && sh -c "gcc --version 2>/dev/null >/dev/null" && echo gcc || echo "$(CC)")
+PCC=$$(sh -c 'case "$$OSTYPE" in darwin*) [ "$(CC)" = cc ] && gcc --version 2>/dev/null >/dev/null ;; *) false ;; esac' && echo gcc || echo "$(CC)")
 
 # Default flags for Unix.  We add -mtune=native to the
 # default set if the compiler supports it (but NOT -march

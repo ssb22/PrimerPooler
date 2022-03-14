@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "POOLER" "1" "February 2022" "Silas S. Brown" ""
+.TH "POOLER" "1" "March 2022" "Silas S. Brown" ""
 .
 .SH "NAME"
 \fBpooler\fR
@@ -309,6 +309,9 @@ Versions prior to 1\.37 did not ignore whitespace characters after FASTA labels\
 .
 .P
 Version 1\.8 was briefly released with a regression that could sometimes result in pairs not being kept in the same pool; this was fixed in version 1\.81\.
+.
+.P
+Version 1\.83 fixes a crash that could occur on very large servers where the number of CPU cores exceeds the number of primers, and version 1\.84 fixes messages like pool sizes under unusual circumstances\.
 .
 .P
 Notable additions:

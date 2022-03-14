@@ -249,6 +249,8 @@ Versions prior to 1.37 did not ignore whitespace characters after FASTA labels.
 
 Version 1.8 was briefly released with a regression that could sometimes result in pairs not being kept in the same pool; this was fixed in version 1.81.
 
+Version 1.83 fixes a crash that could occur on very large servers where the number of CPU cores exceeds the number of primers, and version 1.84 fixes messages like pool sizes under unusual circumstances.
+
 Notable additions:
 
 Version 1.2 added the MultiPLX output option, and Version 1.33 fixed a bug when MultiPLX output was used with tags and multiple chromosomes. Version 1.3  added genome reading from FASTA (not just 2bit), auto-open browser, and suggest number of pools.

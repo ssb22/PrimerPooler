@@ -528,7 +528,9 @@ int main(int argc, char *argv[]) {
             PS_cache cache=PS_precalc(ap,table,overlappingAmplicons,primerNoToAmpliconNo,nAmplicons);
             int seedless = -1;
             printf("Preliminary pooling by threshold...\n");
-            printf("Computer suggestion is %d pools.\nYou can go with this, or you can pick your own number.\n",suggest_num_pools(ap,cache,table));
+            int suggestion = suggest_num_pools(ap,cache,table);
+            if ((suggestion == 1) ? (puts("Computer suggestion is only 1 pool."),getYN("Do you still want to divide into multiple pools? (y/n): "))
+                : (printf("Computer suggestion is %d pools.\nYou can go with this, or you can pick your own number.\n",suggestion),1))
             do {
               int nPools = getNum("How many pools? ",0);
               if(nPools<=1) { puts("Cannot divide into fewer than 2 pools."); continue; }
@@ -706,6 +708,10 @@ int main(int argc, char *argv[]) {
           int suggestion = suggest_num_pools(ap,cache,table);
           fprintf(stderr,"Computer suggestion is %d pools.\n",suggestion);
           if(numPools<0) {
+            if (suggestion==1) {
+              fputs("Cannot divide into fewer than 2 pools, so we've finished\n",stderr);
+              exit(0); /* no need to free memory */
+            }
             numPools = suggestion;
             if (maxCount) {
               /* as the 'preliminary' above, but we now need to check it here (TODO: duplicate code) */

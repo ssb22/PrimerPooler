@@ -812,7 +812,7 @@ static void dGprintBonds64(const MaybeDegeneratePrimer64 *forward,const MaybeDeg
     for(i=tr.r[r].start; i<tr.r[r].end; i++,sr?t_Progress("Sorting... ",tr,np,done,&next):0,done+=np-i)
     for(j=i; j<np; j++) {
       if(!pools || pools[i]==pools[j]) {
-        int pos;
+        int pos=0; /* (init to suppress warning) */
         float dG = deltaG64MaybeDWithPos(forward[i],backward[j],table,&pos);
         if (dG <= threshold) {
           #if defined(_OPENMP)

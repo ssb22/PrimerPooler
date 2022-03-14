@@ -382,8 +382,8 @@ static void printNumInEachPool(const int *poolCounts,int numPools) {
   fprintf(stderr,"\tPool sizes: "); int i;
   for(i=0; i<numPools; i++) {
     if(i) fprintf(stderr,"|");
-    fprintf(stderr,"%d",poolCounts[i] << 1); /* TODO: this "<< 1" assumes countOf(primerMove_depends_on==-1) == np/2, but that is almost certainly going to be the case, unless somebody is doing something very strange, and if the worst comes to the worst it's only an informational pool-size display going a bit wrong */
-  } fprintf(stderr,"\n");
+    fprintf(stderr,"%d",poolCounts[i]);
+  } fprintf(stderr," products\n"); /* or pseudo-products, if some are kept together due to identical primers */
 }
 
 static int IntCompare(const void *a,const void *b) {
@@ -613,8 +613,8 @@ PS_cache PS_precalc(AllPrimers ap,const float *table,const char *overlappingAmpl
   if(memFail(r.scores,r.primerMove_depends_on,r.fix_to_pool,_memFail)) r.scores = NULL;
   else {
     saturate_scores_of_overlapping_primers(r.scores,overlappingAmplicons,primerNoToAmpliconNo,nAmplicons,ap.np);
-    r.fix_min_pools = 2;
-    int i; for(i=0; i<ap.np; i++) if(r.fix_to_pool[i]>=r.fix_min_pools) r.fix_min_pools=r.fix_to_pool[i]+1;
+    r.fix_min_pools = 0; /* this was set to 2 before v1.84, leading to a misleading error message about "@2:primers" if you did --pools=? and computer suggestion was 1 (which anyway wouldn't have worked; handled from user.c in 1.84) */
+    int i; for(i=0; i<ap.np; i++) if(r.fix_to_pool[i]>=r.fix_min_pools) r.fix_min_pools=r.fix_to_pool[i]+1; /* (fix_to_pool starts numbering at 0) */
   }
   return r;
 }
@@ -686,6 +686,7 @@ int suggest_num_pools(AllPrimers ap,PS_cache cache,const float *table) {
      suggesting a number of pools */
   int threshold = table ? 14 : 7; /* dG -7 or score 7.  TODO: customise?  but this function is for when the user is not sure, so perhaps we'd best hard-code the threshold */
   int nPools = ap.np; /* worst case is none of the primers are paired (unpaired primers could hang randomise_pools before v1.42 because this line said ap.np/2) */
+  if (cache.fix_min_pools >= nPools) return cache.fix_min_pools; /* (higher than anything we would generate) */
   int *scores = cache.scores; if(!scores) return 0;
   int *primerMove_depends_on = cache.primerMove_depends_on;
   int *fix_to_pool = cache.fix_to_pool;
@@ -696,17 +697,14 @@ int suggest_num_pools(AllPrimers ap,PS_cache cache,const float *table) {
     return 0;
   randomise_pools(ap.np,primerMove_depends_on,fix_to_pool,scores,nPools,pools,bContrib,poolCounts,1); /* puts 0 or 1 set in each pool (after the fixed ones) */
   int suggest_nPools = 1;
-  int primer; for (primer=0; primer<ap.np; primer++) if (primerMove_depends_on[primer]==-1) {
-      if (fix_to_pool[primer]==-1) {
-        int destPool; for (destPool=0; destPool < suggest_nPools; destPool++) if(maxScoreOfBadness(bContrib[primerAndPool_to_contribOffset(primer,destPool,nPools)]) <= threshold) break; /* find first pool it will 'fit' in */
-        if (destPool == suggest_nPools) suggest_nPools++;
-        if (pools[primer] != destPool) make_a_move(primerAndDest_to_moveNo(primer,destPool,nPools,pools),ap.np,scores,primerMove_depends_on,nPools,pools,bContrib,poolCounts,ap.np);
-      } else if (fix_to_pool[primer] >= suggest_nPools) {
-        /* must have at least as many for the fixed-pool primers
-         (and fix_to_pool starts numbering at 0, so +1 of course) */
-        suggest_nPools = fix_to_pool[primer] + 1;
-      }
+  int primer;
+  for (primer=0; primer<ap.np; primer++)
+    if (primerMove_depends_on[primer]==-1
+        && fix_to_pool[primer]==-1) {
+      int destPool; for (destPool=0; destPool < suggest_nPools; destPool++) if(maxScoreOfBadness(bContrib[primerAndPool_to_contribOffset(primer,destPool,nPools)]) <= threshold) break; /* find first pool it will 'fit' in */
+      if (destPool == suggest_nPools) suggest_nPools++;
+      if (pools[primer] != destPool) make_a_move(primerAndDest_to_moveNo(primer,destPool,nPools,pools),ap.np,scores,primerMove_depends_on,nPools,pools,bContrib,poolCounts,ap.np);
   }
   free(bContrib); free(pools); free(poolCounts);
-  return suggest_nPools;
+  return cache.fix_min_pools > suggest_nPools ? cache.fix_min_pools : suggest_nPools;
 }
