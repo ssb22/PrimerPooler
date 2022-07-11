@@ -71,7 +71,7 @@ Optionally include tags to apply to all primers (also called _tailed primers_ or
 You can also manually “fix” a primer-set to a predetermined pool number by using a primer name prefix: `>@2:myPrimer-F` fixes `myPrimer-F` to pool 2 (in which case Primer Pooler will allocate other primer-sets around these limitations); this can be useful when you don’t have a whole-genome file for overlap detection.
 
 Do you want to use deltaG? (y/n): 
-: As the program explains, it will need to be told the temperature and concentration settings if you want it to use deltaG. Alternatively you can use the faster and simpler “score” method, but this is less accurate.
+: As the program explains, it will need to be told the temperature and concentration settings if you want it to use deltaG. Temperature is normally the annealing temperature, about 5C below the "Tm" melting point of the primers; 45C is typical. Alternatively you can use the faster and simpler “score” method, but this is less accurate.
 
 * If you opt to use Score when your primers and/or tags are very long, you will be asked if you are really sure you don’t want to use deltaG instead.
 
@@ -199,7 +199,7 @@ Processing options should be placed before this filename. Options are as follows
 : Similar to `--counts`, this can be useful for checking a manual selection or for a rough idea. All interactions worse than the given threshold (deltaG if `--dg` is in use, otherwise score) will be written to standard output, with bonds diagrams.
 
 `--dg[=temperature[,mg[,cation[,dNTP]]]]`
-: Set this option to use deltaG instead of score. Optional parameters are the temperature (default is human blood heat), the concentration of magnesium (default 0), the concentration of monovalent cation (e.g. sodium, default 50), and the concentration of deoxynucleotide (dNTP, default 0). Decimal fractions are allowed in all of these. Temperature is specified in kelvin, and all concentrations are specified in millimoles per litre.
+: Set this option to use deltaG instead of score. Optional parameters are the temperature (normally the annealing temperature, about 5C below the "Tm" melting point of the primers; default 45C), the concentration of magnesium (default 0), the concentration of monovalent cation (e.g. sodium, default 50), and the concentration of deoxynucleotide (dNTP, default 0). Decimal fractions are allowed in all of these. Temperature is specified in kelvin, and all concentrations are specified in millimoles per litre.
 
 `--suggest-pools`
 : Outputs a suggested number of pools. This is the approximate lowest number of pools needed to achieve no worse than a deltaG of -7 (or a score of 7) in each.
@@ -250,6 +250,8 @@ Versions prior to 1.37 did not ignore whitespace characters after FASTA labels.
 Version 1.8 was briefly released with a regression that could sometimes result in pairs not being kept in the same pool; this was fixed in version 1.81.
 
 Version 1.83 fixes a crash that could occur on very large servers where the number of CPU cores exceeds the number of primers, and version 1.84 fixes messages like pool sizes under unusual circumstances.
+
+Version 1.85 changes the default annealing temperature from 37C to 45C.
 
 Notable additions:
 

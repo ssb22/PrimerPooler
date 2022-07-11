@@ -398,7 +398,7 @@ static float* getDeltaG(int maxLen) {
     puts("OK, please enter the deltaG settings:");
     float k,mag,mono,dntp;
     while (1) {
-      k=getKelvin("deltaG temperature (e.g. 37): "); // clarification added in v1.77 because somebody thought they should type their experiment's Tm (melting point) here
+      k=getKelvin("deltaG temperature (at annealing e.g. 45): "); // clarification added in v1.77 because somebody thought they should type their experiment's Tm (melting point) here; clarified again in 1.85 from "(e.g. 37)"
       if (k >= 0 || getYN("This temperature is physically impossible. Continue anyway? (y/n): ")) break;
     }
     while(1) {
@@ -619,7 +619,7 @@ int main(int argc, char *argv[]) {
         threshold = atof(argv[i]+sizeof("--print-bonds=")-1);
         hasThreshold = 1;
       } else if(!strncmp(argv[i],"--dg",sizeof("--dg")-1)) {
-        float temp=C_to_kelvin(37), mg=0, cation=50, dNTP=0;
+        float temp=C_to_kelvin(45), mg=0, cation=50, dNTP=0;
         char *q = argv[i]+sizeof("--dg")-1;
         if(*q=='=') {
           q++;
