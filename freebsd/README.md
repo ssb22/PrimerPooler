@@ -12,7 +12,7 @@ discussed at [261741](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=261741),
 v1.84 update was [3b861fa](https://cgit.freebsd.org/ports/commit/?id=3b861fa65fe8386404132158eb153378007483bf)
 discussed at [262498](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=262498),
 and
-1.85 update was
+1.85 update was [bcc206f](https://cgit.freebsd.org/ports/commit/?id=bcc206f2be0cca24bf8688ab6d81c351ccbc98d3)
 discussed at [265163](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=265163)
 
 FreeBSD users should be able to install it via `pkg install pooler`
