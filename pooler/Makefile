@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+test: pooler
+	./pooler --dg=328 --print-bonds=-11 example.txt | grep "Bonding positions: 92 " >/dev/null
+	@echo "Your pooler binary seems to be working."
+
 pooler: 128.h 32.h 32-64.h
 	$(PCC) $(CFLAGS) $(OpenMpFlag) *.c -o pooler -lm
 
@@ -60,7 +64,7 @@ OpenMpFlag=$$(echo 'int main(){}' > _test.c; if $(PCC) -fopenmp _test.c -o /dev/
 # Flags for cross-compiling to Windows:
 WinFlags=-Wall -Os -flto -static -fopenmp # TODO: comdlg32 etc doesn't have to be static, only OpenMP/pthread (but low-priority because comdlg32 itself is only 20k or so)
 
-.PHONY: clean test-other
+.PHONY: clean test test-other
 clean:
 	rm -f 128.h 32.h 32-64.h *~
 
@@ -86,7 +90,7 @@ pooler.tgz: clean
 	! grep ^#define debug.h # error if any debug.h option is still enabled
 	rm -rf release
 	mkdir -p release/pooler
-	cp *.c *.h *.desktop Makefile release/pooler/
+	cp *.c *.h *.desktop Makefile example.txt release/pooler/
 	cd release && tar -cvf pooler.tar pooler && cd ..
 	gzip -9 release/pooler.tar
 	mv release/pooler.tar.gz pooler.tgz
@@ -121,13 +125,13 @@ publish: test-other
 	rm -f pooler.tar
 	vagrant halt
 	gzip -d pooler.tgz && zopfli --i1000 pooler.tar && mv pooler.tar.gz pooler.tgz && rm -f pooler.tar # save another 2k or so (but still use tgz in case someone doesn't have xz)
-	scp pooler.zip pooler.exe pooler64.exe pooler.tgz ds:homepage/pooler/
-	ssh ds 'CommitMsg_PrimerPooler="$(M)" homepage/update'
+	scp pooler.zip pooler.exe pooler64.exe pooler.tgz oci:homepage/pooler/
+	ssh oci 'CommitMsg_PrimerPooler="$(M)" homepage/update'
 	@rm pooler
 publish-src: test-other
 	make pooler.tgz
-	scp pooler.tgz ds:homepage/pooler/
-	ssh ds 'CommitMsg_PrimerPooler="$(M)" homepage/update'
+	scp pooler.tgz oci:homepage/pooler/
+	ssh oci 'CommitMsg_PrimerPooler="$(M)" homepage/update'
 update-manual:
 	(echo '## Primer Pooler';awk 'BEGIN{p=0} /^From http/{p=1} /^Compiling from source/{p=0} /^Usage$$/{p=1} /Typescript player/{p=0} //{if(p)print}' < ~/PrimerPooler/README.md|grep -v http://ssb22|gsed -Ee "s/(‘)|(’)/'/g" -e 's/(“)|(”)/"/g' -e 's/ / /g' -e 's/—/---/g' -e 's/ or `pooler64`//' ) > pooler.1.md
 	vagrant up
