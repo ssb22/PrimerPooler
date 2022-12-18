@@ -120,7 +120,7 @@ static int nPrimerVariantsToFind; static bit64 minValid;
 typedef struct {
   AmpEvent *events; size_t ptr,size;
 } EventList;
-static EventList *eventLists; size_t numEventLists;
+static EventList *eventLists; int numEventLists;
 
 #if defined(Debug_BaseCheck) || defined(Debug_AmpliconNo)
 static void debugPrnRTL(bit64 bases,bit64 valid) {

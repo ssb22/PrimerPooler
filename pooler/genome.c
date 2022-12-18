@@ -271,7 +271,7 @@ SeqName* go_through_genome(FILE *f,int ignoreVars) {
           #pragma omp critical
           #endif
           {
-          int outputted=sprintf(pgBuf,"%*s %2d%%",ProgWidthPerThread-5,seqNames[renumberedSeqNo],(int)((float)baseNo*100.0/(float)nBases));
+          int outputted=snprintf(pgBuf,ProgWidthPerThread,"%*s %2d%%",ProgWidthPerThread-5,seqNames[renumberedSeqNo],(int)((float)baseNo*100.0/(float)nBases));
           if(!isRHS) pgBuf[outputted]=' ';
           nextThreadUpdate = time(NULL)+1;
         }

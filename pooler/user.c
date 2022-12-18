@@ -586,7 +586,7 @@ int main(int argc, char *argv[]) {
     float threshold = 0, *table = NULL;
     FILE *genomeFile = NULL, *multiplxFile = NULL;
     char *poolPrefix=NULL;
-    AllPrimers ap={0,0,0,0,0,0,0};
+    AllPrimers ap={0,0,0,0,0,0,0,0};
     int maxAmpliconLen = 220; // also in help text
     int seedless = 0, maxCount = 0, suggestPools = 0;
     int ignoreVars = 1; // (default 1 for drop-in compatibility with v1.61 and below, which didn't have the option to turn it off)
