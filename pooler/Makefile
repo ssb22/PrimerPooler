@@ -23,8 +23,10 @@ win-crosscompile: pooler.exe pooler64.exe
 .PHONY: win-crosscompile mingw publish
 pooler.exe: 128.h 32.h 32-64.h mingw
 	i686-w64-mingw32-gcc $(WinFlags) *.c -l comdlg32 -o pooler.exe -lm
+	chmod -x pooler.exe
 pooler64.exe: 128.h 32.h 32-64.h mingw
 	x86_64-w64-mingw32-gcc $(WinFlags) *.c -l comdlg32 -o pooler64.exe -lm
+	chmod -x pooler64.exe
 mingw:
 	@if ! which x86_64-w64-mingw32-gcc >/dev/null; then if which apt-get >/dev/null; then echo "Installing the cross-compiler with apt-get..."; sudo apt-get install gcc-mingw-w64; elif which yum >/dev/null; then echo "Installing the cross-compiler with yum..."; sudo yum install mingw32-gcc mingw64-gcc mingw32-libgomp mingw64-libgomp mingw32-winpthreads-static mingw64-winpthreads-static; else echo "Cannot find the cross-compiler or how to install it"; exit 1; fi; fi
 
