@@ -40,7 +40,8 @@ You will need:
 
 * MingW compiler(s) if you want to cross-compile for Windows.
 
-Type `make` or `make win-crosscompile`
+Type `cd pooler` and then `make` (or `make win-crosscompile`).
+Then do `sudo make install` if you'd like it in `/usr/local`.
 
 Usage
 -----
