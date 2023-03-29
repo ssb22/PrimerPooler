@@ -2,22 +2,36 @@
 
 PortSystem          1.0
 
+PortGroup           github      1.0
+PortGroup           makefile    1.0
+
+github.setup        ssb22 PrimerPooler 1.86 v
+github.tarball_from archive
 name                pooler
-version             1.86
-categories          science
-platforms           darwin
-license             Apache-2
-maintainers         ssb22
+revision            0
+
+homepage            https://ssb22.user.srcf.net/pooler/
+
 description         Optimise combinations of primers
-long_description    PrimerPooler optimises combinations of primers to minimise the formation of dimers in multiplexed PCR.
-homepage            http://ssb22.user.srcf.net/pooler/
-fetch.type          git
-git.url             https://github.com/ssb22/PrimerPooler.git
-use_configure       no
-build {
-    exec make -C ${worksrcpath}/pooler 2>/dev/null >/dev/null
-}
+
+long_description    PrimerPooler optimises combinations of primers to \
+                    minimise the formation of dimers in multiplexed PCR.
+
+checksums           sha256  611184935617a8e0a3bcc07d38fc5d10fb9fa0a5d6204a031723d46b8ba215e8 \
+                    rmd160  52cfaa8a34f52a7880ec33040167951cf4ea3c4e \
+                    size    131658
+
+categories          science
+license             Apache-2
+maintainers         {@ssb22} \
+                    openmaintainers
+
+build.dir           ${worksrcpath}/pooler
+
 destroot {
-    xinstall -m 755 ${worksrcpath}/pooler/pooler ${destroot}${prefix}/bin/
-    xinstall -m 644 ${worksrcpath}/pooler/pooler.1 ${destroot}${prefix}/share/man/man1/
+    xinstall -m 0755 \
+        ${worksrcpath}/pooler/pooler ${destroot}${prefix}/bin/
+
+    xinstall -m 0644 \
+        ${worksrcpath}/pooler/pooler.1 ${destroot}${prefix}/share/man/man1/
 }
