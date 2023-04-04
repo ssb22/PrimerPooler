@@ -8,7 +8,7 @@ PortGroup           makefile    1.0
 github.setup        ssb22 PrimerPooler 1.86 v
 github.tarball_from archive
 name                pooler
-revision            0
+revision            1
 
 homepage            https://ssb22.user.srcf.net/pooler/
 
@@ -27,6 +27,9 @@ maintainers         {@ssb22} \
                     openmaintainer
 
 build.dir           ${worksrcpath}/pooler
+depends_lib         port:libomp
+depends_build       port:clang-16
+configure.cc        clang-mp-16
 
 destroot {
     xinstall -m 0755 \
