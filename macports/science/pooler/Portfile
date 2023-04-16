@@ -27,9 +27,7 @@ maintainers         {@ssb22} \
                     openmaintainer
 
 build.dir           ${worksrcpath}/pooler
-depends_lib         port:libomp
-depends_build       port:clang-16
-configure.cc        clang-mp-16
+compiler.openmp_version 2.5
 
 destroot {
     xinstall -m 0755 \
