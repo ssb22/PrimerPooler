@@ -5,9 +5,6 @@ To install: `sudo port install pooler`
 
 To remove: `sudo port uninstall pooler`
 
-Unfortunately Macports server has only the single-core version at present.
-Multi-core support is coming (see second pull request below).
-
 To compile locally via MacPorts:
 
 1. `sudo` and edit `/opt/local/etc/macports/sources.conf` adding a `file:///` entry to point to `PrimerPooler/macports`
