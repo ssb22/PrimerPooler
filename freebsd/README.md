@@ -1,7 +1,9 @@
 FreeBSD port
 ============
 
-This was [committed to FreeBSD's ports tree](https://svnweb.freebsd.org/ports?view=revision&revision=555418)
+FreeBSD users should be able to install this via `pkg install pooler`
+
+It was [committed to FreeBSD's ports tree](https://svnweb.freebsd.org/ports?view=revision&revision=555418)
 under `/usr/ports/biology/pooler`, porting discussion was on [issue 251065](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=251065),
 v1.77 update was [472c25a](https://cgit.freebsd.org/ports/commit/?id=472c25aa5d8dc3268fc5476b53100872d1900467)
 discussed at [257975](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=257975),
@@ -16,5 +18,4 @@ discussed at [265163](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=265163),
 and
 1.86 update was [a75fab4](https://cgit.freebsd.org/ports/commit/?id=a75fab4072ee1d5d0c5f8240986c016f123a97fd)
 discussed at [268445](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=268445).
-
-FreeBSD users should be able to install it via `pkg install pooler`
+(This [core-dumped on a quarterly build 8 months later](https://pkg-status.freebsd.org/beefy4/data/124i386-quarterly/f3d8c4bf5c40/logs/pooler-1.86.log) along with [60+ other packages](https://pkg-status.freebsd.org/beefy4/build.html?mastername=124i386-quarterly&build=f3d8c4bf5c40) possibly due to an infrastructure problem, but `pkg install` still works at least on 64-bit)
