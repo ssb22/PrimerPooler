@@ -448,14 +448,14 @@ static int anotherGo() {
   return getYN("Would you like another go? (y/n): ");
 }
 
-static int averagePairsRoundUp(int np,int nPools) {
-  np = (np+1)/2; return (np+nPools-1)/nPools;
+static int averageGroupsRoundUp(AllPrimers ap,int nPools) {
+  return (count_groups(ap)+nPools-1)/nPools;
 }
 
-static void suggestMax(int nPools,int average,int total) {
-  printf("With these parameters, we must allow at least %d per pool, so:\n",average);
-  int powerOfTen = (average<=1000) ? 10 : 100;
-  int suggestion = (average/powerOfTen+1)*powerOfTen;
+static void suggestMax(int nPools,int averageGroups,int total) {
+  printf("With these parameters, we must allow at least %d per pool, so:\n",averageGroups);
+  int powerOfTen = (averageGroups<=1000) ? 10 : 100;
+  int suggestion = (averageGroups/powerOfTen+1)*powerOfTen;
   int numSuggestionsOutput;
   for(numSuggestionsOutput=0;numSuggestionsOutput<4;
       suggestion+=powerOfTen) {
@@ -470,7 +470,7 @@ static void suggestMax(int nPools,int average,int total) {
     int percent = 100*difference/suggestion;
     if(percent>30 && numSuggestionsOutput) break;
     if(percent==100) {
-      printf("I suggest max difference %d for room to manoeuvre\n(I suggest don't worry about percentages with these small pools)\n",suggestion);
+      printf("I suggest max %d groups per pool for room to manoeuvre\n(I suggest don't worry about percentages with these small pools)\n",suggestion);
       break;
     } else if(percent>10) {
       printf("For max difference %d (%d%%), set max/pool=%d\n",difference,percent,suggestion);
@@ -535,15 +535,15 @@ int main(int argc, char *argv[]) {
               int nPools = getNum("How many pools? ",0);
               if(nPools<=1) { puts("Cannot divide into fewer than 2 pools."); continue; }
               else if(nPools<cache.fix_min_pools) { printf("Must be at least %d pools, because you have primers with names starting @%d:\n",cache.fix_min_pools,cache.fix_min_pools); continue; }
-              int average = 2*averagePairsRoundUp(ap.np,nPools); /* important to round UP, for the getNum below */
+              int averageGroups = averageGroupsRoundUp(ap,nPools); /* important to round UP, for the getNum below */
               puts("Setting a maximum size of each pool can make the pools more even.");
-              suggestMax(nPools,average,ap.np);
+              suggestMax(nPools,averageGroups,ap.np);
               int maxCount = 0;
               if (getYN("Do you want to set a maximum? (y/n): "))
                 while(1) {
-                  maxCount = getNum("Maximum size of each pool: ",average);
-                  if (maxCount > average || getYN("Setting the maximum count exactly equal to the average is a BAD idea.\nIt will severely restrict the program's movement of primers between pools,\nmeaning pools cannot be optimised and the only progress will\nbe by repeated re-randomization from the beginning.\nAre you sure you're happy with this? (y/n): ")) break;
-                  suggestMax(nPools,average,ap.np);
+                  maxCount = getNum("Maximum size of each pool (number of products): ",averageGroups);
+                  if (maxCount > averageGroups || getYN("Setting the maximum count exactly equal to the average is a BAD idea.\nIt will severely restrict the program's movement of primers between pools,\nmeaning pools cannot be optimised and the only progress will\nbe by repeated re-randomization from the beginning.\nAre you sure you're happy with this? (y/n): ")) break;
+                  suggestMax(nPools,averageGroups,ap.np);
                 }
               int limit = getYN("Do you want to give me a time limit? (y/n): ")?getNum("How many minutes? ",0):0;
               int *pools = split_into_pools(ap,nPools,limit,cache,(seedless==-1)?(seedless=getYN("Do you want my \"random\" choices to be 100% reproducible for demonstrations? (y/n): "))!=0:seedless,table,maxCount);
@@ -601,7 +601,7 @@ int main(int argc, char *argv[]) {
         puts("--suggest-pools suggests a number for --pools (or use --pools=?)");
         puts("--pools[=NUM[,MINS[,PREFIX]]] e.g. --pools=2,1,poolfile-");
         puts("(Set prefix to a single hyphen (-) to write all to stdout)");
-        puts("--max-count=NUM (per pool)");
+        puts("--max-count=NUM (groups per pool)");
         puts("--genome=PATH to check amplicons for overlaps in the genome (.2bit or .fa)");
         puts("--scan-variants scans variant sequences in the genome too (_ and - in names)");
         puts("--amp-max=LENGTH sets max amplicon length for the overlap check (default 220)"); /* v1.35 added 0 = unlimited, not available in interactive version */
@@ -689,9 +689,9 @@ int main(int argc, char *argv[]) {
       }
       if(numPools>0 && maxCount) {
         /* preliminary: check range of maxCount */
-        int average=2*averagePairsRoundUp(ap.np,numPools);
-        if(maxCount<average) {
-          fputs("Can't do that: --max-count is too low!\n",stderr); suggestMax(numPools,average,ap.np);
+        int averageGroups = averageGroupsRoundUp(ap,numPools);
+        if(maxCount<averageGroups) {
+          fputs("Can't do that: --max-count is too low!\n",stderr); suggestMax(numPools,averageGroups,ap.np);
           exit(1); /* no need to free memory */
         }
       }
@@ -715,7 +715,7 @@ int main(int argc, char *argv[]) {
             numPools = suggestion;
             if (maxCount) {
               /* as the 'preliminary' above, but we now need to check it here (TODO: duplicate code) */
-              int average=2*averagePairsRoundUp(ap.np,numPools);
+              int average=2*averageGroupsRoundUp(ap,numPools);
               if(maxCount<average) {
                 fputs("Can't do that: --max-count is too low!\n",stderr); suggestMax(numPools,average,ap.np);
                 exit(1); /* no need to free memory */

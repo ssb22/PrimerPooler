@@ -345,6 +345,16 @@ static int* merge_scores_of_stuckTogether_primers(AllPrimers ap,int *scores) {
   }
   free(pairedOK); return primerMove_depends_on;
 }
+int count_groups(AllPrimers ap) { // for user.c
+  int* scores=malloc(t_Nitems(ap.np)*sizeof(int));
+  if(!scores) return ap.np; // unlikely
+  memset(scores,0,t_Nitems(ap.np));
+  int* primerMove_depends_on=merge_scores_of_stuckTogether_primers(ap,scores);
+  int grps=0,i; for(i=0; i<ap.np; i++) if(primerMove_depends_on[i]==-1) ++grps;
+  free(primerMove_depends_on); free(scores);
+  printf("Primer-group count is %d\n",grps);
+  return grps;
+}
 
 static inline int should_stick_to_pool(AllPrimers ap,int i) {
   /* if the user wants some primers to be fixed to
@@ -435,7 +445,7 @@ static void randomise_pools(int np,const int *primerMove_depends_on,const int *f
         pool++; /* not very random but it'll do for now */
         if(pool==nPools) pool=0;
         if(pool==origPool) {
-          fprintf(stderr, "randomise_pools ERROR: maxCount too small, can't fit\n");
+          fprintf(stderr, "randomise_pools ERROR: maxCount %d too small, can't fit primer %d into any pool\n",maxCount,i);
           abort();
         }
       } pools[i]=pool; poolCounts[pool]++;
@@ -633,7 +643,6 @@ int* split_into_pools(AllPrimers ap,int nPools,int timeLimit,PS_cache cache,int 
   {
     if(nPools<cache.fix_min_pools) { fprintf(stderr,"ERROR: @%d:primers need at least %d pools, but only got %d\n",cache.fix_min_pools,cache.fix_min_pools,nPools); return NULL; }
   }
-  if(maxCount) { int denom=0,i; for(i=0; i<ap.np; i++) if(primerMove_depends_on[i]!=-1) denom++; maxCount=maxCount*denom/ap.np; if(!maxCount) maxCount=1; } /* pairs */
   int numMoves=0,*shared_moves=initMoves(&numMoves,ap.np,nPools,primerMove_depends_on,fix_to_pool); /* =0 to stop warnings on old compilers */
   if(memFail(shared_moves,_memFail)) return NULL;
   if(!numMoves) {

@@ -37,6 +37,7 @@ typedef struct { /* PS_cache: things that don't vary with number of pools */
 } PS_cache;
 int* split_into_pools(AllPrimers ap,int numPools,int timeLimit,PS_cache cache,int seedless,const float *table,int maxCount);
 int suggest_num_pools(AllPrimers ap,PS_cache cache,const float *table);
+int count_groups(AllPrimers ap);
 PS_cache PS_precalc(AllPrimers ap,const float *table,const char *overlappingAmplicons,const int *primerNoToAmpliconNo,int nAmplicons); /* nAmplicons=0 ok if discounting that; table==NULL ok if not doing dG */
 void PS_free(PS_cache c);
 
