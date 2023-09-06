@@ -254,7 +254,7 @@ Version 1.83 fixes a crash that could occur on very large servers where the numb
 
 Version 1.85 changes the default annealing temperature from 37C to 45C.
 
-Version 1.87 has an important update to maximum pool size handling.  Previous versions accepted pool sizes in primer counts (not product counts), and incorrectly converted this to product counts in some cases where some product groups were not of size 2.  Plus the user messages were confusing: this could cause issues for experimenters who wanted to set the pool size at the lower limit (which is not advisable but supported).  Version 1.87 accepts pool sizes in product counts, and the associated messages have been revised.  Documentation has also been fixed to clarify that it's the last character (not the last letter) that should be different in labels of non-standard primer groups.
+Version 1.87 has an important update to maximum pool size handling.  Previous versions accepted pool sizes in primer counts (not product counts), and incorrectly converted this to product counts in some cases where some product groups were not of size 2.  Plus the user messages were confusing: this could cause issues for experimenters who wanted to set the pool size at the lower limit (which is not advisable but supported).  Version 1.87 accepts pool sizes in product counts, and the associated messages have been revised.  Documentation has also been fixed to clarify that it's the last character (not the last letter) that should be different in labels of non-standard primer groups.  Version 1.88 additionally fixes an infinite loop that can occur should the user ignore warnings and fill pools exactly to the maximum.
 
 Notable additions:
 

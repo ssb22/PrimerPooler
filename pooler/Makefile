@@ -16,7 +16,9 @@ test: pooler
 	./pooler --dg=328 --print-bonds=-11 example.txt | grep "Bonding positions: 92 " >/dev/null
 	@echo "Your pooler binary seems to be working."
 
-pooler: 128.h 32.h 32-64.h
+CODE=64-128.h 64-only.h 64.h all-primers.h amplicons.c ansi.h bit-basics.h bit-choice.h bit-common.c debug.h deltaG-degen.h deltaG.h genome.c genome.h load-common.c memcheck.c memcheck.h numbers.h openmp.h pool-split.c random.h title.c triangle.h user.c version.h # listed so 'make pooler' will update it if any of this changed
+
+pooler: 128.h 32.h 32-64.h $(CODE)
 	$(PCC) $(CFLAGS) $(OpenMpFlag) *.c -o pooler -lm
 
 win-crosscompile: pooler.exe pooler64.exe

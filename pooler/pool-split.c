@@ -584,6 +584,11 @@ static void poolsplit_thread(const int* shared_moves,AllPrimers ap,int nPools,in
         if(!willContinue) break;
         if(keep) {
           /* already found a good local maxima, so just take a few random steps away from it... */
+          if(maxCount) {
+            /* if user keeps ignoring warnings and fills pools completely, we can't do this and will have to re-randomise */
+            int found=0,i; for(i=0; i<nPools; i++) if(poolCounts[i]<maxCount) {found=1;break;}
+            if(!found) break;
+          }
           int randomMoves = 5+ThreadRand()%5, i;
           for(i=0; i<randomMoves; i++) {
             int moveToMake=ThreadRand()%numMoves;
