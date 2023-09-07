@@ -15,7 +15,8 @@ v1.84 update was [3b861fa](https://cgit.freebsd.org/ports/commit/?id=3b861fa65fe
 discussed at [262498](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=262498),
 1.85 update was [bcc206f](https://cgit.freebsd.org/ports/commit/?id=bcc206f2be0cca24bf8688ab6d81c351ccbc98d3)
 discussed at [265163](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=265163),
-and
 1.86 update was [a75fab4](https://cgit.freebsd.org/ports/commit/?id=a75fab4072ee1d5d0c5f8240986c016f123a97fd)
-discussed at [268445](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=268445).
-(This [core-dumped on a quarterly build 8 months later](https://pkg-status.freebsd.org/beefy4/data/124i386-quarterly/f3d8c4bf5c40/logs/pooler-1.86.log) along with [60+ other packages](https://pkg-status.freebsd.org/beefy4/build.html?mastername=124i386-quarterly&build=f3d8c4bf5c40) possibly due to an infrastructure problem, but `pkg install` still works at least on 64-bit)
+discussed at [268445](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=268445)
+(this [core-dumped on a quarterly build 8 months later](https://pkg-status.freebsd.org/beefy4/data/124i386-quarterly/f3d8c4bf5c40/logs/pooler-1.86.log) along with [60+ other packages](https://pkg-status.freebsd.org/beefy4/build.html?mastername=124i386-quarterly&build=f3d8c4bf5c40) possibly due to an infrastructure problem, but `pkg install` still works at least on 64-bit),
+and
+1.88 update is discussed at [273604](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=273604).
