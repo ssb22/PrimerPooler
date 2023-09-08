@@ -13,4 +13,5 @@ To compile locally via MacPorts:
 4. Do `sudo port install pooler`
 5. Optionally restore `/opt/local/etc/macports/sources.conf` removing or commenting out the `file:///` entry
 
-Here is the [MacPorts pull request](https://github.com/macports/macports-ports/pull/18108) for reference, plus the [pull request to enable OpenMP](https://github.com/macports/macports-ports/pull/18147).
+Here is the [MacPorts pull request](https://github.com/macports/macports-ports/pull/18108) for reference, plus the [pull request to enable OpenMP](https://github.com/macports/macports-ports/pull/18147)
+and the [pull request to update from 1.86 to 1.88](https://github.com/macports/macports-ports/pull/20329).
