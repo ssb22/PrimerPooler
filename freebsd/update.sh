@@ -13,5 +13,5 @@ if ! ssh freebsd 'cd /usr/ports/biology/pooler/ && rm -f distinfo && make makesu
 fi
 ssh freebsd 'cd /usr/ports/biology/pooler/ && git commit * -m "biology/pooler: update to '"$(grep -m 1 '^#.*Program_Version' ../pooler/version.h|cut -d ' ' -f5|tr -d '"')"'"' &&
 ssh freebsd 'cd /usr/ports && git format-patch --stdout -1' > pooler.mbox &&
-echo "pooler.mbox to https://bugs.freebsd.org/bugzilla/enter_bug.cgi (as plain-text attachment; on second page, set URL to http://ssb22.user.srcf.net/pooler/#changes )"
+echo "pooler.mbox to https://bugs.freebsd.org/bugzilla/enter_bug.cgi (as plain-text attachment; put last-change in Description; on second page, set URL to http://ssb22.user.srcf.net/pooler/#changes )"
 echo "If the diff is wrong and we need to re-run update.sh after a change, first do: ssh freebsd 'cd /usr/ports;git reset --hard HEAD~1'"
