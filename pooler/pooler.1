@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "POOLER" "1" "March 2022" "Silas S. Brown" ""
+.TH "POOLER" "1" "October 2023" "Silas S. Brown" ""
 .
 .SH "NAME"
 \fBpooler\fR
@@ -50,20 +50,20 @@ You should answer \fIy\fR to this question, otherwise Primer Pooler will merely 
 .
 .TP
 Please enter the name of the primers file to read\.
-As the program further explains, it is expecting a text file in multiple\-sequence FASTA format, such as:
+As the program further explains, it is expecting a text file in multiple\-sequence FASTA format\.
 .
 .P
-(this example does not represent real primers)\. Degenerate bases are allowed using the normal letters, and both upper and lower case is allowed\. Names of amplicons\' primers should end with F or R (for Forward and Reverse), and otherwise match\.
+Degenerate bases are allowed using the normal letters, and both upper and lower case is allowed\. Names of amplicons\' primers should end with F or R (for Forward and Reverse), and otherwise match\.
 .
 .P
-Optionally include tags to apply to all primers (also called \fItailed primers\fR or barcoding) using \fB>tagF\fR and \fB>tagR\fR (tags can also be changed part\-way through the file)\. If you also have Taq probes or other primers that don\'t themselves make amplicons, you can include these ending with other letters, e\.g\. \fB>toySet1\-P\fR\-\-\-any set of names differing in only the last letter will be kept in the same pool, but you must use F for forward and R or B for reverse (backward) if you also want to check primer\-pairs for overlaps in the genome\. If you want to re\-use the same primer in two amplicons (for example, two amplicons that have the same forward primer but differing reverse primers, to be found on two different genomes), then you should input the shared primer \fItwice\fR, once for each amplicon, each time naming it after the corresponding amplicon (e\.g\. product1\-F and product2\-F)\-\-\-the corresponding sets will then be kept in the same pool\.
+Optionally include tags to apply to all primers (also called \fItailed primers\fR or barcoding) using \fB>tagF\fR and \fB>tagR\fR (tags can also be changed part\-way through the file)\. If you also have Taq probes or other primers that don\'t themselves make amplicons, you can include these ending with other letters, e\.g\. \fB>toySet1\-P\fR\-\-\-any set of names differing in only the last character will be kept in the same pool, but you must use F for forward and R or B for reverse (backward) if you also want to check primer\-pairs for overlaps in the genome\. If you want to re\-use the same primer in two amplicons (for example, two amplicons that have the same forward primer but differing reverse primers, to be found on two different genomes), then you should input the shared primer \fItwice\fR, once for each amplicon, each time naming it after the corresponding amplicon (e\.g\. product1\-F and product2\-F)\-\-\-the corresponding sets will then be kept in the same pool\.
 .
 .P
 You can also manually "fix" a primer\-set to a predetermined pool number by using a primer name prefix: \fB>@2:myPrimer\-F\fR fixes \fBmyPrimer\-F\fR to pool 2 (in which case Primer Pooler will allocate other primer\-sets around these limitations); this can be useful when you don\'t have a whole\-genome file for overlap detection\.
 .
 .TP
 Do you want to use deltaG? (y/n):
-As the program explains, it will need to be told the temperature and concentration settings if you want it to use deltaG\. Alternatively you can use the faster and simpler "score" method, but this is less accurate\.
+As the program explains, it will need to be told the temperature and concentration settings if you want it to use deltaG\. Temperature is normally the annealing temperature, about 5C below the "Tm" melting point of the primers; 45C is typical\. Alternatively you can use the faster and simpler "score" method, but this is less accurate\.
 .
 .IP "\(bu" 4
 If you opt to use Score when your primers and/or tags are very long, you will be asked if you are really sure you don\'t want to use deltaG instead\.
@@ -106,13 +106,10 @@ These up\-front counts will include self\-interactions (a primer interacting wit
 .
 .TP
 Do you want to see the highest bonds of the whole file? (y/n):
-Similar to the above question, this can be useful for checking a manual selection or for a rough idea\. If you answer Yes, you will be asked for a deltaG or score threshold, and all interactions worse than that threshold will be displayed on\-screen with bonds diagrams such as:
-.
-.IP
-5\'\-GGCTGAGCGCTCAGTTT\-3\' xx||||||||||||xx 3\'\-TTTGACTCGCGAGTCGG\-5\'
+Similar to the above question, this can be useful for checking a manual selection or for a rough idea\. If you answer Yes, you will be asked for a deltaG or score threshold, and all interactions worse than that threshold will be displayed on\-screen with bonds diagrams\.
 .
 .P
-and you will then be asked if you wish to save it to a file, and, if so, what file name\. You will then be asked if you would like to try another threshold\.
+You will then be asked if you wish to save it to a file, and, if so, what file name\. You will then be asked if you would like to try another threshold\.
 .
 .TP
 Shall I split this into pools for you? (y/n):
@@ -179,10 +176,10 @@ After the pooling is complete, or after you have interrupted it (by pressing Ctr
 .
 .TP
 Do you want to see the highest bonds of these pools? (y/n):
-If you answer Yes, you will be asked for a deltaG or score threshold, and all interactions worse than that threshold will be displayed on\-screen with bonds diagrams such as: 5\'\-GGCTGAGCGCTCAGTTT\-3\' xx||||||||||||xx 3\'\-TTTGACTCGCGAGTCGG\-5\'
+If you answer Yes, you will be asked for a deltaG or score threshold, and all interactions worse than that threshold will be displayed on\-screen with bonds diagrams\.
 .
 .P
-and you will then be asked if you wish to save it to a file, and, if so, what file name\. You will then be asked if you would like to try another threshold\.
+You will then be asked if you wish to save it to a file, and, if so, what file name\. You will then be asked if you would like to try another threshold\.
 .
 .TP
 Shall I write each pool to a different result file? (y/n):
@@ -200,27 +197,10 @@ If you answered No to trying a different number of pools, or if you didn\'t want
 Besides running interactively (see above), it is also possible to run Primer Pooler with command\-line arguments\. This section assumes familiarity with the concept of running programs from the command line\.
 .
 .P
-The only \fImandatory\fR argument (if not running interactively) is a filename for the primers file\. This should be a text file in multiple\-sequence FASTA format, such as:
-.
-.IP "" 4
-.
-.nf
-
->toySet1\-F
-AGCTGCTGCTGCGATCT
->toySet1\-R
-GGCTGAGCGCTCAGTTT
->toySet2\-F
-ACGGCTTGACACCGTTCGACTG
->toySet2\-R
-CAGACGTTCAG
-.
-.fi
-.
-.IP "" 0
+The only \fImandatory\fR argument (if not running interactively) is a filename for the primers file\. This should be a text file in multiple\-sequence FASTA format\.
 .
 .P
-(this example does not represent real primers)\. Degenerate bases are allowed using the normal letters, and both upper and lower case is allowed\. Names of amplicons\' primers should end with F or R, and otherwise match\. Taq probes etc can end with other letters\. If you want to use the same primer sequence as part of two or more amplicons, then you may include two or more copies in the input with different names; they\'ll be kept in the same pool\. Optionally include tags (tails, barcoding) to apply to all primers: >tagF and >tagR (tags can also be changed part\-way through the file)\.
+Degenerate bases are allowed using the normal letters, and both upper and lower case is allowed\. Names of amplicons\' primers should end with F or R, and otherwise match\. Taq probes etc can end with other letters\. If you want to use the same primer sequence as part of two or more amplicons, then you may include two or more copies in the input with different names; they\'ll be kept in the same pool\. Optionally include tags (tails, barcoding) to apply to all primers: >tagF and >tagR (tags can also be changed part\-way through the file)\.
 .
 .P
 Processing options should be placed before this filename\. Options are as follows:
@@ -243,7 +223,7 @@ Similar to \fB\-\-counts\fR, this can be useful for checking a manual selection 
 .
 .TP
 \fB\-\-dg[=temperature[,mg[,cation[,dNTP]]]]\fR
-Set this option to use deltaG instead of score\. Optional parameters are the temperature (default is human blood heat), the concentration of magnesium (default 0), the concentration of monovalent cation (e\.g\. sodium, default 50), and the concentration of deoxynucleotide (dNTP, default 0)\. Decimal fractions are allowed in all of these\. Temperature is specified in kelvin, and all concentrations are specified in millimoles per litre\.
+Set this option to use deltaG instead of score\. Optional parameters are the temperature (normally the annealing temperature, about 5C below the "Tm" melting point of the primers; default 45C), the concentration of magnesium (default 0), the concentration of monovalent cation (e\.g\. sodium, default 50), and the concentration of deoxynucleotide (dNTP, default 0)\. Decimal fractions are allowed in all of these\. Temperature is specified in kelvin, and all concentrations are specified in millimoles per litre\.
 .
 .TP
 \fB\-\-suggest\-pools\fR
@@ -314,6 +294,12 @@ Version 1\.8 was briefly released with a regression that could sometimes result 
 Version 1\.83 fixes a crash that could occur on very large servers where the number of CPU cores exceeds the number of primers, and version 1\.84 fixes messages like pool sizes under unusual circumstances\.
 .
 .P
+Version 1\.85 changes the default annealing temperature from 37C to 45C\.
+.
+.P
+Version 1\.87 has an important update to maximum pool size handling\. Previous versions accepted pool sizes in primer counts (not product counts), and incorrectly converted this to product counts in some cases where some product groups were not of size 2\. Plus the user messages were confusing: this could cause issues for experimenters who wanted to set the pool size at the lower limit (which is not advisable but supported)\. Version 1\.87 accepts pool sizes in product counts, and the associated messages have been revised\. Documentation has also been fixed to clarify that it\'s the last character (not the last letter) that should be different in labels of non\-standard primer groups\. Version 1\.88 additionally fixes an infinite loop that can occur should the user ignore warnings and fill pools exactly to the maximum\.
+.
+.P
 Notable additions:
 .
 .P
@@ -354,29 +340,6 @@ What the base binds with\. \fBT\fR binds with \fBA\fR and \fBC\fR binds with \fB
 Degenerate base
 A base we\'re not sure about because of genetic variation in a population\. We can use extra letters to specify which bases are allowable\.
 .
-.P
-IUPAC/IUBMB degenerate\-base codes:
-.
-.IP "" 4
-.
-.nf
-
-K = G or T
-Y = C or T
-S = C or G
-W = A or T
-R = A or G
-M = A or C
-B = any except A
-D = any except C
-H = any except G
-V = any except T
-N = any
-.
-.fi
-.
-.IP "" 0
-.
 .TP
 Primer \fIor\fR Oligo
 A short string of bases (actually nucleotides) that\'s used to start copying from the strand of DNA we\'re testing\. The primer matches up with the start of a section of DNA we want to copy\. There are also extra structures at the two ends of the primer that set its direction: these are written as \fB5\'\fR (for the phosphate start) and \fB3\'\fR (for the hydroxyl end)\. The actual copying occurs from the \fIcomplementary\fR strand, but we can ignore this\. Primers are special cases of molecules called oligonucleotides\.
@@ -403,13 +366,7 @@ A bunch of primer\-sets all drifting around in the same mixture\. When that mixt
 .
 .TP
 Overlap
-Two primer\-sets that access overlapping sections of the genome\. If they are placed in the same pool, an unwanted shorter amplicon is produced\. Consider the following toy example:
-.
-.IP
-\&\.\.\.\.1\.\.2\.\.3\.\.4\.\.\.\. A\-\-\-\-\-B C\-\-\-\-\-D C\-\-B
-.
-.P
-If primers \fBA\fR and \fBB\fR are designed to obtain an amplicon from position \fB1\fR to \fB3\fR, and \fBC\fR and \fBD\fR are designed to obtain an amplicon from \fB2\fR to \fB4\fR, then placing them in the same pool will result in excessive pairings between \fBC\fR and \fBB\fR, producing a short amplicon from \fB2\fR to \fB3\fR at the expense of the other two\. This is very bad news and we have to pick our pools to avoid it\.
+Two primer\-sets that access overlapping sections of the genome\. If they are placed in the same pool, an unwanted shorter amplicon is produced\.
 .
 .TP
 Dimer
