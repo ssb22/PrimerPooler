@@ -28,7 +28,7 @@ Primer Pooler can:
 
 If your CPU is modern enough to have them, Primer Pooler will take advantage of 64-bit registers and multiple cores. But it also runs on older equipment.
 
-Please note that Primer Pooler **does not design primers by itself.**  You must choose your primers first, whether by using NCBI's [Primer BLAST](https://www.ncbi.nlm.nih.gov/tools/primer-blast/index.cgi) or any other method of your choice.  Once you have your primers, Primer&nbsp;Pooler can partition them into pools.
+Please note that Primer Pooler **does not design primers by itself.**  You must choose your primers first, whether by using NCBI’s [Primer BLAST](https://www.ncbi.nlm.nih.gov/tools/primer-blast/index.cgi) or any other method of your choice.  Once you have your primers, Primer&nbsp;Pooler can partition them into pools.
 
 
 Compiling from source
@@ -41,7 +41,7 @@ You will need:
 * MingW compiler(s) if you want to cross-compile for Windows.
 
 Type `cd pooler` and then `make` (or `make win-crosscompile`).
-Then do `sudo make install` if you'd like it in `/usr/local`.
+Then do `sudo make install` if you’d like it in `/usr/local`.
 
 Usage
 -----
@@ -124,7 +124,7 @@ To obtain a .2bit file from UCSC:
 
 4. Scroll down to the links, and choose the one that ends `.2bit` (e.g. [hg38.2bit](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.2bit))
 
-Primer Pooler will then ask "Do you want me to ignore variant chromosomes i.e. sequences with `_` or `-` in their names?" (you'll probably want to answer Yes if you're using hg38.2bit), and will then ask for a maximum amplicon length (in base pairs): this is the maximum length of the _product_—the number does _not_ include the length of any tag sequences you have added to the primers. Then it will scan through the genome data to detect where your amplicons start and finish, and which ones overlap.
+Primer Pooler will then ask "Do you want me to ignore variant chromosomes i.e. sequences with `_` or `-` in their names?" (you’ll probably want to answer Yes if you’re using hg38.2bit), and will then ask for a maximum amplicon length (in base pairs): this is the maximum length of the _product_—the number does _not_ include the length of any tag sequences you have added to the primers. Then it will scan through the genome data to detect where your amplicons start and finish, and which ones overlap.
 
 * After the overlap scan is complete, Primer Pooler will then have enough data to write an input file for MultiPLX if you wish to run that software as well for comparison. If you decline this, it will ask if you want it to write a simple text file with the locations of all amplicons, which you may accept or decline.
 
@@ -183,7 +183,7 @@ The only _mandatory_ argument (if not running interactively) is a filename for t
     >toySet2-R
     CAGACGTTCAG
 
-(this example does not represent real primers). Degenerate bases are allowed using the normal letters, and both upper and lower case is allowed. Names of amplicons’ primers should end with F or R, and otherwise match. Taq probes etc can end with other letters. If you want to use the same primer sequence as part of two or more amplicons, then you may include two or more copies in the input with different names; they'll be kept in the same pool. Optionally include tags (tails, barcoding) to apply to all primers: >tagF and >tagR (tags can also be changed part-way through the file).
+(this example does not represent real primers). Degenerate bases are allowed using the normal letters, and both upper and lower case is allowed. Names of amplicons’ primers should end with F or R, and otherwise match. Taq probes etc can end with other letters. If you want to use the same primer sequence as part of two or more amplicons, then you may include two or more copies in the input with different names; they’ll be kept in the same pool. Optionally include tags (tails, barcoding) to apply to all primers: >tagF and >tagR (tags can also be changed part-way through the file).
 
 Processing options should be placed before this filename. Options are as follows:
 
@@ -215,7 +215,7 @@ Processing options should be placed before this filename. Options are as follows
 : Check the amplicons for overlaps in the genome, and avoid these overlaps during pooling. The genome file may be in .2bit format as supplied by UCSC, or in .fa (FASTA) format.
 
 `--scan-variants`
-: When searching for amplicons in a genome file, scan variant sequences in that file too, i.e. sequences with `_` and `-` in their names.  By default such sequences are omitted as they're not normally needed if using hg38.
+: When searching for amplicons in a genome file, scan variant sequences in that file too, i.e. sequences with `_` and `-` in their names.  By default such sequences are omitted as they’re not normally needed if using hg38.
 
 `--amp-max=LENGTH`
 : Sets maximum amplicon length for the overlap check. The default is 220.
@@ -242,7 +242,7 @@ Version 1.0 had important bugs that can affect results:
 
 These bugs have now been fixed. In addition, Versions 1.1 through 1.13 had a bug related to the first fix, which would cause interaction-checking for pooling purposes to be performed _without_ tags when running in interactive mode (command-line mode was not affected). I therefore recommend re-running in the latest version.
 
-Versions prior to 1.17 also had a display bug: the concentrations for the deltaG calculation are in millimoles per litre, not nanomoles as stated on-screen in interactive mode (please ignore the on-screen instruction and enter millimoles, or upgrade to the latest version which fixes that instruction).  The manual was fixed in version 1.8 (also noting that it's per litre, not per cubic metre).
+Versions prior to 1.17 also had a display bug: the concentrations for the deltaG calculation are in millimoles per litre, not nanomoles as stated on-screen in interactive mode (please ignore the on-screen instruction and enter millimoles, or upgrade to the latest version which fixes that instruction).  The manual was fixed in version 1.8 (also noting that it’s per litre, not per cubic metre).
 
 Versions prior to 1.34 would round down any decimal fraction you type when in interactive mode (for deltaG temperature, concentration and threshold settings). Internal calculation and command-line use was not affected by this bug.
 
@@ -254,7 +254,7 @@ Version 1.83 fixes a crash that could occur on very large servers where the numb
 
 Version 1.85 changes the default annealing temperature from 37C to 45C.
 
-Version 1.87 has an important update to maximum pool size handling.  Previous versions accepted pool sizes in primer counts (not product counts), and incorrectly converted this to product counts in some cases where some product groups were not of size 2.  Plus the user messages were confusing: this could cause issues for experimenters who wanted to set the pool size at the lower limit (which is not advisable but supported).  Version 1.87 accepts pool sizes in product counts, and the associated messages have been revised.  Documentation has also been fixed to clarify that it's the last character (not the last letter) that should be different in labels of non-standard primer groups.  Version 1.88 additionally fixes an infinite loop that can occur should the user ignore warnings and fill pools exactly to the maximum.
+Version 1.87 has an important update to maximum pool size handling.  Previous versions accepted pool sizes in primer counts (not product counts), and incorrectly converted this to product counts in some cases where some product groups were not of size 2.  Plus the user messages were confusing: this could cause issues for experimenters who wanted to set the pool size at the lower limit (which is not advisable but supported).  Version 1.87 accepts pool sizes in product counts, and the associated messages have been revised.  Documentation has also been fixed to clarify that it’s the last character (not the last letter) that should be different in labels of non-standard primer groups.  Version 1.88 additionally fixes an infinite loop that can occur should the user ignore warnings and fill pools exactly to the maximum.
 
 Notable additions:
 
@@ -394,7 +394,35 @@ Primer Pooler is free software, now licensed under the Apache License, version 2
 Prior to v1.72 it was licensed under the GNU General Public License,
 version 3 or later; the new Apache 2 license is still GPL-compatible but with
 added permissions to make it more acceptable in laboratories with blanket legal
-policies against GPL'd code.
+policies against GPL’d code.
+
+Hidden humour
+-------------
+
+When developing Primer Pooler, I was aware that Stockholm University’s
+Professor Erik Lindahl, author of GROMACS, had written to the
+Folding@Home project in 2010 to explain the presence of some 400 joke
+expansions of “GROMACS” in his code: “our students and postdocs
+frequently put in 12 [hour] days and occasional weekends of hard
+coding and research work, and then the occasional smile in the middle
+of their very serious work can be surprisingly helpful.”
+
+Since I was aware of similar circumstances in the local pathology
+research group for which Primer Pooler was originally developed, I did
+place a little humour into Primer Pooler.  This originally included a
+statement in the paper that 30,000 years is too long for a research
+grant, and the download page had a mildly disparaging pathology-themed
+reference to Microsoft’s market dominance.  The peer reviewers, while
+sympathetic of my humorous intentions, requested these to be removed.
+However, there is still a little humour in the program itself,
+revealed if you run interactively and provide silly answers like
+setting deltaG to absolute zero or millions of degrees.  There’s also
+an occasional humorous comment in the source code, and there’s
+something else which I’m rather afraid the biologists won’t have time
+to figure out although fans of a certain ex-NASA engineer’s Web comic
+might see it.  I have reasonable confidence that these minor jokes are
+concealed well enough so as not to be disruptive to the work of anyone
+not deliberately looking for a little entertainment.
 
 Thanks
 ------
@@ -416,15 +444,15 @@ I wrote this to make an in-browser demonstration of Primer Pooler. It uses code 
 
 Advantages:
 
-* The Javascript is entirely self-contained. It does not require any special setup on the server side and you don't have to rely on a third-party server.
+* The Javascript is entirely self-contained. It does not require any special setup on the server side and you don’t have to rely on a third-party server.
 
 * Reduces data transfer without blurring the text (although HTML5 Canvas can be blurred under _some_ circumstances)
 
 * New text stays entirely within the canvas and is not added to the web page, thus avoiding bad interactions with screenreaders and accessibility CSS
 
-* Canvas appears only on wide screens, won't clutter mobile devices (I'm assuming the demonstration is non-essential)
+* Canvas appears only on wide screens, won’t clutter mobile devices (I’m assuming the demonstration is non-essential)
 
-* Animation does not start until clicked on (to avoid annoying anyone who's not looking at it), and can be paused/resumed at any time by clicking again
+* Animation does not start until clicked on (to avoid annoying anyone who’s not looking at it), and can be paused/resumed at any time by clicking again
 
 * The typescript can be viewed in the Javascript source.
 
@@ -432,13 +460,13 @@ Disadvantages:
 
 * No rewind control
 
-* Won't stop the screensaver
+* Won’t stop the screensaver
 
-* Can't copy/paste or change the font without looking at the source
+* Can’t copy/paste or change the font without looking at the source
 
 * The terminal program must be simple: think “line-mode interaction with some colours”. Full-screen editors etc will _not_ work properly (at least not without further work on the converter)
 
-* No screen-reader accessibility. But as mentioned above I'm assuming the demonstration is entirely optional; people who don't think visually shouldn't need it (I know I don't; I'm just doing this because apparently some sighted people want it).
+* No screen-reader accessibility. But as mentioned above I’m assuming the demonstration is entirely optional; people who don’t think visually shouldn’t need it (I know I don’t; I’m just doing this because apparently some sighted people want it).
 
 License: MIT
 
