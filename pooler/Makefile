@@ -136,10 +136,12 @@ publish-src: test-other
 	make pooler.tgz
 	scp pooler.tgz oci:homepage/pooler/
 	ssh oci 'CommitMsg_PrimerPooler="$(M)" homepage/update'
-GSED=$$(which gsed >/dev/null || which sed)
 update-manual:
-	(echo '## Primer Pooler';awk 'BEGIN{p=0} /^From http/{p=1} /^Compiling from source/{p=0} /^Usage$$/{p=1} /Typescript player/{p=0} //{if(p)print}' < $$(if pwd|grep PrimerPooler >/dev/null; then echo ..; else echo ~/PrimerPooler; fi)/README.md|grep -v http://ssb22|$(GSED) -Ee "s/(‘)|(’)/'/g" -e 's/(“)|(”)/"/g' -e 's/ / /g' -e 's/—/---/g' -e 's/ or `pooler64`//' | grep -v '^    ' | grep -v '^IUPAC/IUBMB degenerate-base codes:' | grep -v 'designed to obtain an amplicon from position' | $(GSED) -e 's/,* such as:$$/./' -e 's/ Consider the following toy example:$$//' -e 's/^and you/You/' -e 's/^.this example does not represent real primers.. //' ) > pooler.1.md # (can't have the examples because ronn can't do preformatted)
-	if which ronn >/dev/null; then ronn -r --organization="Silas S. Brown" pooler.1.md; else vagrant up && vagrant ssh -c 'ronn -r --organization="Silas S. Brown" /vagrant/pooler.1.md' && vagrant halt && mv pooler.1 ~/PrimerPooler/pooler/; fi
+	(echo '## Primer Pooler';awk 'BEGIN{p=0} /^From http/{p=1} /^Compiling from source/{p=0} /^Usage$$/{p=1} /Typescript player/{p=0} //{if(p)print}' < ~/PrimerPooler/README.md|grep -v http://ssb22|gsed -Ee "s/(‘)|(’)/'/g" -e 's/(“)|(”)/"/g' -e 's/ / /g' -e 's/—/---/g' -e 's/ or `pooler64`//' | grep -v '^    ' | grep -v '^IUPAC/IUBMB degenerate-base codes:' | grep -v 'designed to obtain an amplicon from position' | gsed -e 's/,* such as:$$/./' -e 's/ Consider the following toy example:$$//' -e 's/^and you/You/' -e 's/^.this example does not represent real primers.. //' ) > pooler.1.md # (can't have the examples because ronn can't do preformatted)
+	vagrant up
+	vagrant ssh -c 'ronn -r --organization="Silas S. Brown" /vagrant/pooler.1.md'
+	vagrant halt
+	mv pooler.1 ~/PrimerPooler/pooler/
 	@rm pooler.1.md
 
 # Mac OS 10.9's gcc lacks OpenMP (although 10.7's has it);
