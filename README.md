@@ -354,7 +354,7 @@ AutoDimer
 : A 2004 program to check a single pool for dimers. AutoDimer was coded in Visual Basic 6 and its dimer search is several thousand times slower than Primer Pooler’s; re-pooling must be done manually, as must the handling of degenerate bases.
 
 Thresholding
-: A simple and fast way of grouping primer sets: “don’t add a set to a pool if the interaction badness would exceed some threshold” (usually dG&lt;-7 or overlap). The total number of pools required is discovered by the computer, not chosen by the user. Primer Pooler uses thresholding to _suggest_ a number of pools, but allows the user to override it for minimisation.
+: A simple and fast way of grouping primer sets: “don’t add a set to a pool if the interaction badness would exceed some threshold” (usually dG worse than -7 or amplicon overlap). The total number of pools required is discovered by the computer, not chosen by the user. Primer Pooler uses thresholding to _suggest_ a number of pools, but allows the user to override it for minimisation.
 
 Minimisation
 : Method used by Primer Pooler to group primer sets into a user-specified number of pools, seeking to minimise the interactions within each pool.
