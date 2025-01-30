@@ -265,6 +265,7 @@ Version 1.36 clarified the use of Taq probes, and allowed these to be in the inp
 Version 1.4 allows tags to be changed part-way through a FASTA file. For example, if there are two `>tagF` sequences, the first `>tagF` will set the tags for all `F` primers between the beginning of the file and the point at which the second `>tagF` is given; the second `>tagF` will set the tags for all `F` primers from that point forward. You can change tags as often as you like.
 
 Version 1.5 allows primer sets to be “fixed” to predetermined pools by specifying these as primer name prefixes, e.g. `>@2:myPrimer-F` fixes `myPrimer-F` to pool 2.
+(In versions 1.81 through 1.88, the program would not allow you to fix two or more *identical* primers to *different* pools; this was fixed in 1.89.)
 
 Version 1.6 detects and warns about alternative products of non-unique PCR.  It was followed within hours by Version 1.61 which fixed a regression in the amplicon overlap check.  Reporting was improved in version 1.82.
 

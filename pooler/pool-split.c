@@ -1,18 +1,3 @@
-/*
-This file is part of Primer Pooler (c) Silas S. Brown.  For Wen.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -264,18 +249,18 @@ static ULL globalBadness(const int *score,int np,const int *pools) {
   }
 }
 
-static inline int should_stick_together(AllPrimers ap,int i,int j) {
+static inline int should_stick_together(AllPrimers ap,int i,int j,const int *fix_to_pool) {
   /* Names same except last letter = keep in same pool */
   /* Identical content = keep in same pool (will then result in a closure in merge_scores_of_stuckTogether_primers) */
   const char *n1=ap.names[i], *n2=ap.names[j];
   size_t l1=strlen(n1),l2=strlen(n2);
-  return ((l1 == l2 && !strncmp(n1,n2,l1-1)) /* TODO: case-insensitive? */
-          || isIdentical(ap,i,j));
+  return (l1 == l2 && !strncmp(n1,n2,l1-1)) /* TODO: case-insensitive? */
+    || (isIdentical(ap,i,j) && (fix_to_pool[i]==-1 || fix_to_pool[j]==-1));
 }
 static inline void updateMax(int *i,int m) {
   if(m>*i) *i=m;
 }
-static int* merge_scores_of_stuckTogether_primers(AllPrimers ap,int *scores) {
+static int* merge_scores_of_stuckTogether_primers(AllPrimers ap,int *scores,const int *fix_to_pool) {
   int i,j,k,*p=scores; if(!p) return NULL;
   int *primerMove_depends_on=malloc(ap.np*sizeof(int));
   if(!primerMove_depends_on) return NULL;
@@ -291,7 +276,7 @@ static int* merge_scores_of_stuckTogether_primers(AllPrimers ap,int *scores) {
   }
   memset(pairedOK,0,ap.np);
   for(i=0; i<ap.np; i++) pmdo_closureFind[i] = i;
-  for(i=0; i<ap.np; i++) for(j=i+1; j<ap.np; j++) if(should_stick_together(ap,i,j)) {
+  for(i=0; i<ap.np; i++) for(j=i+1; j<ap.np; j++) if(should_stick_together(ap,i,j,fix_to_pool)) {
         int iDep=pmdo_closureFind[i],
           jDep=pmdo_closureFind[j];
         if(jDep==j) pmdo_closureFind[j] = iDep;
@@ -345,16 +330,6 @@ static int* merge_scores_of_stuckTogether_primers(AllPrimers ap,int *scores) {
   }
   free(pairedOK); return primerMove_depends_on;
 }
-int count_groups(AllPrimers ap) { // for user.c
-  int* scores=malloc(t_Nitems(ap.np)*sizeof(int));
-  if(!scores) return ap.np; // unlikely
-  memset(scores,0,t_Nitems(ap.np));
-  int* primerMove_depends_on=merge_scores_of_stuckTogether_primers(ap,scores);
-  int grps=0,i; for(i=0; i<ap.np; i++) if(primerMove_depends_on[i]==-1) ++grps;
-  free(primerMove_depends_on); free(scores);
-  printf("Primer-group count is %d\n",grps);
-  return grps;
-}
 
 static inline int should_stick_to_pool(AllPrimers ap,int i) {
   /* if the user wants some primers to be fixed to
@@ -375,6 +350,22 @@ static int* pre_fix_primers_to_pools(AllPrimers ap) {
   for(i=0; i<ap.np; i++)
     fix_to_pool[i] = should_stick_to_pool(ap,i);
   return fix_to_pool;
+}
+
+int count_groups(AllPrimers ap) { // for user.c
+  int* scores=malloc(t_Nitems(ap.np)*sizeof(int));
+  int* fix_to_pool = pre_fix_primers_to_pools(ap);
+  if(memFail(scores,fix_to_pool,_memFail)) return ap.np; // unlikely
+  memset(scores,0,t_Nitems(ap.np));
+  int* primerMove_depends_on=merge_scores_of_stuckTogether_primers(ap,scores,fix_to_pool);
+  int grps=0,i;
+  if(primerMove_depends_on) {
+    for(i=0; i<ap.np; i++)
+      if(primerMove_depends_on[i]==-1) ++grps;
+    free(primerMove_depends_on);
+  } free(fix_to_pool); free(scores);
+  printf("Primer-group count is %d\n",grps);
+  return grps;
 }
 
 static void saturate_scores_of_overlapping_primers(int *scores,const char *overlappingAmplicons,const int *primerNoToAmpliconNo,int nAmplicons,int np) {
@@ -623,8 +614,8 @@ PS_cache PS_precalc(AllPrimers ap,const float *table,const char *overlappingAmpl
   addTags(ap);
   r.scores = table ? dGtriangle(ap,table) : triangle(ap);
   removeTags(ap);
-  r.primerMove_depends_on = merge_scores_of_stuckTogether_primers(ap,r.scores);
   r.fix_to_pool = pre_fix_primers_to_pools(ap);
+  r.primerMove_depends_on = merge_scores_of_stuckTogether_primers(ap,r.scores,r.fix_to_pool);
   if(memFail(r.scores,r.primerMove_depends_on,r.fix_to_pool,_memFail)) r.scores = NULL;
   else {
     saturate_scores_of_overlapping_primers(r.scores,overlappingAmplicons,primerNoToAmpliconNo,nAmplicons,ap.np);
