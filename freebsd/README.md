@@ -21,5 +21,5 @@ discussed at [268445](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=268445)
 1.88 update was [8abd028](https://cgit.freebsd.org/ports/commit/?id=8abd028788bc719acea0697bb74f48894202e720)
 discussed at [273604](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=273604),
 and
-1.89 update was
+1.89 update was [70c1cdc](https://cgit.FreeBSD.org/ports/commit/?id=70c1cdc4a731a3772b61ddd5402f294867a16de6)
 discussed at [284463](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=284463)
