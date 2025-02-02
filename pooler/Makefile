@@ -157,10 +157,10 @@ update-manual:
 all: pooler
 install: all
 	$(MKDIR) $(DESTDIR)/$(PREFIX)/bin
-	$(MKDIR) $(DESTDIR)/$(PREFIX)/man/man1
+	$(MKDIR) $(DESTDIR)/$(PREFIX)/share/man/man1
 	$(INSTALL_PROGRAM) pooler $(DESTDIR)/$(PREFIX)/bin/
 	$(INSTALL_DATA) pooler.desktop $(DESTDIR)/$(PREFIX)/share/applications
-	$(INSTALL_MAN) pooler.1 $(DESTDIR)/$(PREFIX)/man/man1/
+	$(INSTALL_MAN) pooler.1 $(DESTDIR)/$(PREFIX)/share/man/man1/
 install-strip: install
 	$(STRIP) $(DESTDIR)/$(PREFIX)/bin/pooler
 PREFIX          ?= usr/local

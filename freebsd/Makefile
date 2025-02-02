@@ -1,7 +1,6 @@
 PORTNAME=		pooler
 DISTVERSIONPREFIX=	v
 DISTVERSION=		1.89
-DISTVERSIONSUFFIX=	-gf33bf5d
 CATEGORIES=		biology
 
 MAINTAINER=	ssb22@cam.ac.uk
@@ -25,8 +24,5 @@ PLIST_FILES=	bin/pooler share/man/man1/pooler.1.gz share/applications/pooler.des
 .if exists(/usr/include/omp.h)
 CFLAGS+=	-fopenmp
 .endif
-
-post-patch:
-	${REINPLACE_CMD} -e 's|man/man1|share/man/man1|g' ${WRKSRC}/Makefile
 
 .include <bsd.port.mk>
