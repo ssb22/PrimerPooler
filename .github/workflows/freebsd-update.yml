@@ -1,0 +1,23 @@
+name: FreeBSD update
+run-name: create diff for updating FreeBSD port
+on: [workflow_dispatch]
+jobs:
+  Create-diff:
+    runs-on: ubuntu-latest
+    name: create diff
+    steps:
+    - uses: actions/checkout@v4
+    - name: create diff for FreeBSD port update
+      uses: vmactions/freebsd-vm@v1
+      with:
+        prepare: |
+          pkg install -y git bash
+        run: |
+          cd freebsd && bash update.sh
+    - name: Upload output
+      uses: actions/upload-artifact@v4
+      with:
+        name: diffs
+        path: |
+          ${{ github.workspace }}/freebsd/Makefile
+          ${{ github.workspace }}/freebsd/pooler.mbox
