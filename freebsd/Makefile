@@ -8,7 +8,7 @@ COMMENT=	Optimise DNA sequencing primer-set combinations
 WWW=		https://ssb22.user.srcf.net/pooler/
 
 LICENSE=	APACHE20
-LICENSE_FILE=	${WRKDIR}/LICENSE
+LICENSE_FILE=	${WRKSRC}/../LICENSE
 
 USES=		desktop-file-utils
 USE_GITHUB=	yes
