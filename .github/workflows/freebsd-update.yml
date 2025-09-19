@@ -1,4 +1,4 @@
-name: FreeBSD update (may hang on install test portconfig)
+name: FreeBSD update
 run-name: create diff for updating FreeBSD port
 on: [workflow_dispatch]
 jobs:
@@ -12,7 +12,7 @@ jobs:
       uses: vmactions/freebsd-vm@v1
       with:
         prepare: |
-          pkg install -y git bash
+          pkg install -y git bash desktop-file-utils portconfig portlint
         run: |
           cd freebsd && bash update.sh
     - name: Upload output
