@@ -1,4 +1,4 @@
-name: FreeBSD update
+name: FreeBSD update (may hang on install test portconfig)
 run-name: create diff for updating FreeBSD port
 on: [workflow_dispatch]
 jobs:
@@ -8,9 +8,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: create diff for FreeBSD port update
+      timeout-minutes: 10
       uses: vmactions/freebsd-vm@v1
       with:
-        release: "15.0"
         prepare: |
           pkg install -y git bash
         run: |
