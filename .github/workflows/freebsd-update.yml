@@ -8,13 +8,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: create diff for FreeBSD port update
-      uses: cross-platform-actions/action@v0.29.0
+      uses: vmactions/freebsd-vm@v1
       with:
-        operating_system: freebsd
-        version: '14.3'
+        release: "15.0"
+        prepare: |
+          pkg install -y git bash
         run: |
-          sudo pkg install -y git bash
-          cd freebsd && sudo bash update.sh
+          cd freebsd && bash update.sh
     - name: Upload output
       uses: actions/upload-artifact@v4
       with:
