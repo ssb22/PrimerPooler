@@ -1,6 +1,10 @@
 name: FreeBSD update
 run-name: create diff for updating FreeBSD port
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+  schedule:
+    # monthly check FreeBSD didn't somehow break us :)
+    - cron: '42 4 1 * *'
 jobs:
   Create-diff:
     runs-on: ubuntu-latest
