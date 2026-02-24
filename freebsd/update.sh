@@ -37,7 +37,7 @@ if [ "$(uname -s)" = "FreeBSD" ] ; then
     # assume we're root
     pkg info portlint || pkg install -y portlint
     grep DEVELOPER=yes /etc/make.conf 2>/dev/null || echo 'DEVELOPER=yes' >> /etc/make.conf
-    if ! [ -d /usr/ports ] ; then git clone --depth 1 https://github.com/freebsd/freebsd-ports /usr/ports; fi # use the mirror to save upstream bandwidth: we're not going to push from here
+    if ! [ -f /usr/ports/Mk/bsd.port.mk ] ; then mkdir -p /usr/ports; git clone --depth 1 https://github.com/freebsd/freebsd-ports /usr/ports/.; fi # use the mirror to save upstream bandwidth: we're not going to push from here
     mkdir -p /usr/ports/biology/pooler/
     cp Makefile pkg-descr /usr/ports/biology/pooler/
     OldDir=$(pwd)
