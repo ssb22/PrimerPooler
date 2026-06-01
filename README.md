@@ -1,9 +1,9 @@
 PrimerPooler
 ============
 
-From http://ssb22.user.srcf.net/pooler/
+From https://ssb22.user.srcf.net/pooler/
 
-(mirrored at http://ssb22.gitlab.io/pooler/ just in case)
+(mirrored at https://ssb22.gitlab.io/pooler/ just in case)
 
 This program is for geneticists who want to use
 Multiplex PCR to study
@@ -489,13 +489,8 @@ Copyright and Trademarks
 ========================
 
 All material © Silas S. Brown unless otherwise stated.  Licenses as stated above.
-
-* Apache is a registered trademark of The Apache Software Foundation.
-
-* BLAST is a registered trademark of the National Library of Medicine.
-
-* Javascript is a trademark of Oracle Corporation in the US.
-
-* Linux is the registered trademark of Linus Torvalds in the U.S. and other countries.
-
-* Any other trademarks I mentioned without realising are trademarks of their respective holders.
+Apache is a registered trademark of The Apache Software Foundation, which from February to July 2023 acknowledged the Chiricahua Apache, the Choctaw Apache, the Fort Sill Apache, the Jicarilla Apache, the Mescalero Apache, the Lipan Apache, the Apache Tribe of Oklahoma, the Plains Apache, the San Carlos Apache, the Tonto Apache, the White Mountain Apache, the Yavapai Apache and the Apache Alliance.
+BLAST is a registered trademark of the National Library of Medicine.
+Javascript is a trademark of Oracle Corporation in the US.
+Linux is the registered trademark of Linus Torvalds in the U.S. and other countries.
+Any other trademarks I mentioned without realising are trademarks of their respective holders.
