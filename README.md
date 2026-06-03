@@ -29,7 +29,7 @@ Primer Pooler can:
 If your CPU is modern enough to have them, Primer Pooler will take advantage of 64-bit registers and multiple cores. But it also runs on older equipment.
 
 Please note that Primer Pooler **does not design primers by itself.**  You must choose your primers first, whether by using NCBI’s [Primer BLAST](https://www.ncbi.nlm.nih.gov/tools/primer-blast/index.cgi) or any other method of your choice.  Once you have your primers, Primer&nbsp;Pooler can partition them into pools.
-
+  * A newer option is McGill University’s [PrimerWeaver](https://ignea.lab.mcgill.ca/primerweaver/) (2026) which has integrated design and pooling in a browser-based interface.  PrimerPooler remains suited to larger sets (thousands of primers) with control over the number of pools or if you need a command-line tool.
 
 Compiling from source
 ---------------------
