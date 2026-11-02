@@ -28,7 +28,7 @@ export Tags=$(
          git describe --tags
     ) | sed -e s/v//)
 echo "DISTVERSION=		$(echo "$Tags"|sed -e 's/-.*//')" >> m
-if echo "$Tags"|grep '\-' >/dev/null; then echo "DISTVERSIONSUFFIX=	$(echo "$Tags"|sed -e 's/.*-/-/')" >> m; fi # else we're at a version point without extra commits
+if echo "$Tags"|grep '\-' >/dev/null; then echo "DISTVERSIONSUFFIX=	$(echo "$Tags"|sed -e 's/.*-/-/')" >> m; echo "GH_TAGNAME=		v$(echo "$Tags"|sed -e 's/-.*//')" >> m; fi # else we're at a version point without extra commits
 grep -v ^DIST < Makefile | grep -v ^PORTNAME >> m
 mv m Makefile
 
