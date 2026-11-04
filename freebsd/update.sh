@@ -27,7 +27,7 @@ Check_And_Commit () {
     OldDir="$(pwd)"
     cd /usr/ports/biology/pooler/
     rm -rf work distinfo
-    make makesum || (set +x;echo;ls /usr/ports/distfiles;echo "ERROR: makesum failed (see message above); /usr/ports/distfiles listing is above";exit 1)
+    make makesum
     rm -rf work
     portlint -A
     make deinstall || true
