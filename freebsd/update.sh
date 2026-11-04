@@ -27,7 +27,7 @@ Check_And_Commit () {
     OldDir="$(pwd)"
     cd /usr/ports/biology/pooler/
     rm -rf work distinfo
-    make makesum
+    make makesum || (set +x;echo;ls /usr/ports/distfiles;echo "ERROR: makesum failed (see message above); /usr/ports/distfiles listing is above";exit 1)
     rm -rf work
     portlint -A
     make deinstall || true
@@ -70,7 +70,7 @@ echo "updating Makefile to actual current version"
 echo "PORTNAME=		pooler" > m
 echo "DISTVERSIONPREFIX=	v" >> m
 echo "DISTVERSION=		$NewV" >> m
-if echo "$Tags"|grep '\-' >/dev/null; then echo "DISTVERSIONSUFFIX=	$(echo "$Tags"|sed -e 's/.*-/-/')" >> m; echo "GH_TAGNAME=		v$(echo "$Tags"|sed -e 's/.*-//')" >> m; fi # else we're at a version point without extra commits
+if echo "$Tags"|grep '\-' >/dev/null; then echo "DISTVERSIONSUFFIX=	$(echo "$Tags"|sed 's/.*-/-/')" >> m; echo "GH_TAGNAME=		$(echo "$Tags"|sed -e 's/.*-g*//')" >> m; fi # else we're at a version point without extra commits
 if [ "$Take_Upstream_Makefile" = 1 ]; then
   if [ "$(uname -s)" = "FreeBSD" ]; then
     cp /usr/ports/biology/pooler/Makefile .
